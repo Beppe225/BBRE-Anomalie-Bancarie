@@ -1,8 +1,10 @@
-﻿const { app, BrowserWindow } = require('electron');
+﻿const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const DatabaseManager = require('../db/db');
 const { seedSoglieUsura } = require('../db/seed_soglie');
 const { seedRegoleNormative } = require('../db/seed_regole');
+const { esegui_analisi } = require('../engine/orchestrator');
+const { setupIpcHandlers } = require('./ipc_handlers');
 
 global.dbManager = null;
 let mainWindow;
@@ -14,7 +16,6 @@ async function initDatabase() {
     global.dbManager = new DatabaseManager(dbPath);
     await global.dbManager.init();
     
-    // Seed iniziali se DB vuoto
     const db = global.dbManager.getDb();
     const checkSoglie = db.exec("SELECT COUNT(*) FROM soglie_usura");
     
@@ -48,12 +49,11 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   await initDatabase();
+  setupIpcHandlers();
   createWindow();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
@@ -62,7 +62,5 @@ app.on('window-all-closed', () => {
     console.log('💾 Salvataggio database...');
     global.dbManager.close();
   }
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  if (process.platform !== 'darwin') app.quit();
 });

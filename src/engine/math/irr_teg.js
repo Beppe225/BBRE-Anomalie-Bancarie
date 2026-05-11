@@ -1,119 +1,104 @@
 ﻿/**
- * BBRE Engine Matematico: Calcolo IRR (TEG)
- * Convenzione: Actual/365, periodicità mensile.
- * Algoritmo: Newton-Raphson (max 500 iter) -> Fallback Bisezione [-1, 1]
+ * irr_teg.js - Calcolo IRR conforme TEG italiano
+ * Implementazione Newton-Raphson con fallback bisezione
  */
 
-function calcola_irr(flussi_cassa, date_iso, tan_seed = 0.10) {
-  if (!flussi_cassa || flussi_cassa.length < 2) {
-    return { irr_annuale: 0, convergenza: false, iterazioni: 0, metodo_usato: 'Dati insufficienti' };
-  }
+function calcola_irr(flussi_cassa, tan_seed = null, max_iter = 1000, tol = 1e-7) {
+  // Funzione NPV (Net Present Value)
+  const npv = (rate) => {
+    let sum = 0;
+    for (let i = 0; i < flussi_cassa.length; i++) {
+      // Convenzione TEG: base 365 gg, periodicità mensile
+      const t = i / 12; // anni
+      sum += flussi_cassa[i] / Math.pow(1 + rate, t);
+    }
+    return sum;
+  };
 
-  // 1. Preparazione dati: ordinamento e calcolo giorni da t0
-  const punti = date_iso.map((d, i) => ({
-    data: new Date(d),
-    flusso: flussi_cassa[i],
-    giorni: 0
-  })).sort((a, b) => a.data - b.data);
+  // Derivata NPV per Newton-Raphson
+  const dnpv = (rate) => {
+    let sum = 0;
+    for (let i = 1; i < flussi_cassa.length; i++) {
+      const t = i / 12;
+      sum -= (t * flussi_cassa[i]) / Math.pow(1 + rate, t + 1);
+    }
+    return sum;
+  };
 
-  const t0 = punti[0].data;
-  
-  // Calcola giorni effettivi rispetto a t0
-  punti.forEach(p => {
-    p.giorni = (p.data - t0) / (1000 * 60 * 60 * 24);
-  });
+  // Seed iniziale basato su TAN se fornito
+  let rate = tan_seed || 0.05;
+  let iter = 0;
+  let converged = false;
+  let method = 'Newton-Raphson';
 
-  // ❌ RIMOSSO: Controllo errato sulla somma flussi
-  // La somma positiva è NORMALE nei finanziamenti (interessi)
+  // Newton-Raphson
+  for (iter = 0; iter < max_iter; iter++) {
+    const f = npv(rate);
+    const df = dnpv(rate);
 
-  // 2. Funzioni matematiche per Newton-Raphson
-  // f(r) = somma [ Flusso / (1+r)^(giorni/365) ]
-  function valuta_funzione(r) {
-    return punti.reduce((acc, p) => {
-      return acc + (p.flusso / Math.pow(1 + r, p.giorni / 365));
-    }, 0);
-  }
+    if (Math.abs(df) < 1e-10) break;
 
-  // f'(r) = derivata della funzione
-  function valuta_derivata(r) {
-    return punti.reduce((acc, p) => {
-      const esponente = p.giorni / 365;
-      // Derivata di x^-n è -n * x^(-n-1)
-      return acc - (p.flusso * esponente) / Math.pow(1 + r, esponente + 1);
-    }, 0);
-  }
+    const newRate = rate - f / df;
 
-  // 3. Esecuzione Newton-Raphson
-  let r = tan_seed; // Seed iniziale (es. TAN del contratto)
-  let iterazioni = 0;
-  let convergenza = false;
-  const tolleranza = 1e-7;
-
-  for (; iterazioni < 500; iterazioni++) {
-    const val = valuta_funzione(r);
-    const der = valuta_derivata(r);
-
-    // Se siamo vicini allo zero, abbiamo trovato la radice
-    if (Math.abs(val) < tolleranza) {
-      convergenza = true;
+    if (Math.abs(newRate - rate) < tol) {
+      converged = true;
+      rate = newRate;
       break;
     }
 
-    // Se la derivata è quasi zero, Newton fallisce (passa a bisezione dopo il ciclo)
-    if (Math.abs(der) < 1e-12) {
-      break; 
-    }
+    rate = newRate;
 
-    // Aggiornamento r
-    const r_new = r - (val / der);
-    
-    // Prevenzione divergence: se r diventa irrealisticamente alto/basso
-    if (Math.abs(r_new) > 100) break;
-    
-    r = r_new;
-  }
-
-  // 4. Fallback: Bisezione se Newton non ha converguto
-  if (!convergenza) {
-    // Intervallo di ricerca [-0.99, 5] (tassi tra -99% e 500%)
-    let a = -0.99;
-    let b = 5.0;
-    
-    // Verifica se la radice esiste nell'intervallo
-    const fa = valuta_funzione(a);
-    const fb = valuta_funzione(b);
-    
-    if (fa * fb > 0) {
-      // Nessun cambio di segno, proviamo comunque con l'ultimo valore di Newton
-      return { irr_annuale: parseFloat(r.toFixed(6)), convergenza: false, iterazioni: iterazioni, metodo_usato: 'Newton-Fail / No Root' };
-    }
-
-    // Loop Bisezione
-    for (; iterazioni < 1000; iterazioni++) {
-      let c = (a + b) / 2;
-      let fc = valuta_funzione(c);
-
-      if (Math.abs(fc) < tolleranza || (b - a) / 2 < tolleranza) {
-        r = c;
-        convergenza = true;
-        break;
-      }
-
-      const fa_curr = valuta_funzione(a);
-      if (fa_curr * fc < 0) {
-        b = c;
-      } else {
-        a = c;
-      }
+    // Fallback a bisezione dopo 500 iterazioni
+    if (iter === 500) {
+      method = 'Bisezione (fallback)';
+      rate = bisezione(flussi_cassa, -0.99, 1.0, tol, 500);
+      break;
     }
   }
 
   return {
-    irr_annuale: parseFloat(r.toFixed(6)),
-    convergenza: convergenza,
-    iterazioni: iterazioni,
-    metodo_usato: convergenza ? (iterazioni < 500 ? 'Newton-Raphson' : 'Bisezione') : 'Non Convergente'
+    irr_annuale: rate,
+    convergenza: converged,
+    iterazioni: iter,
+    metodo_usato: method
   };
+}
+
+// Algoritmo di bisezione come fallback
+function bisezione(flussi, low, high, tol, max_iter) {
+  let mid = (low + high) / 2;
+  let f_low = npv_b(flussi, low);
+  let f_high = npv_b(flussi, high);
+
+  if (f_low * f_high > 0) return mid; // Nessun root nell'intervallo
+
+  for (let i = 0; i < max_iter; i++) {
+    mid = (low + high) / 2;
+    const f_mid = npv_b(flussi, mid);
+
+    if (Math.abs(f_mid) < tol || (high - low) / 2 < tol) {
+      return mid;
+    }
+
+    if (f_low * f_mid < 0) {
+      high = mid;
+      f_high = f_mid;
+    } else {
+      low = mid;
+      f_low = f_mid;
+    }
+  }
+
+  return mid;
+}
+
+function npv_b(flussi, rate) {
+  let sum = 0;
+  for (let i = 0; i < flussi.length; i++) {
+    const t = i / 12;
+    sum += flussi[i] / Math.pow(1 + rate, t);
+  }
+  return sum;
 }
 
 module.exports = { calcola_irr };

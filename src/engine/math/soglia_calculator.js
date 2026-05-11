@@ -1,114 +1,60 @@
 ﻿/**
- * BBRE Calcolatore Soglie
- * Interfaccia tra Engine e Database
+ * soglia_calculator.js - Recupero soglie usura da DB
  */
 
-function get_soglia_db(db, data_stipula_iso, tipo_contratto, capitale) {
-  try {
-    const dataStipula = new Date(data_stipula_iso);
-    const anno = dataStipula.getFullYear();
-    // Calcolo trimestre (1-4)
-    const mese = dataStipula.getMonth() + 1;
-    const trimestre = Math.ceil(mese / 3);
+function get_soglia_db(db, data_stipula, tipo_contratto) {
+  const date = new Date(data_stipula);
+  const anno = date.getFullYear();
+  const mese = date.getMonth() + 1;
+  const trimestre = Math.ceil(mese / 3);
 
-    // 1. Tentativo: Ricerca record esatto
-    // Nota: assumiamo che 'categoria' nel DB sia normalizzata (es. 'mutuo_ipotecario')
-    const queryEsatto = `
-      SELECT tegm, tasso_soglia 
-      FROM soglie_usura 
-      WHERE anno = ? AND trimestre = ? AND tipo_contratto = ? 
+  // Cerca record esatto
+  const stmt = db.prepare(`
+    SELECT * FROM soglie_usura 
+    WHERE anno = ? AND trimestre = ? AND tipo_contratto = ?
+    ORDER BY data_pubblicazione DESC
+    LIMIT 1
+  `);
+
+  let risultato = stmt.get(anno, trimestre, tipo_contratto);
+
+  if (!risultato) {
+    // Fallback: trimestre precedente
+    const prevTrimestre = trimestre === 1 ? 4 : trimestre - 1;
+    const prevAnno = trimestre === 1 ? anno - 1 : anno;
+
+    risultato = db.prepare(`
+      SELECT * FROM soglie_usura 
+      WHERE anno = ? AND trimestre = ? AND tipo_contratto = ?
+      ORDER BY data_pubblicazione DESC
       LIMIT 1
-    `;
-    const resEsatto = db.exec(queryEsatto, [anno, trimestre, tipo_contratto]);
+    `).get(prevAnno, prevTrimestre, tipo_contratto);
 
-    if (resEsatto.length > 0 && resEsatto[0].values.length > 0) {
-      const row = resEsatto[0].values[0];
-      return {
-        trovato: true,
-        tegm: row[0],
-        soglia: row[1],
-        fonte: 'Dato Ufficiale Esatto',
-        warning: null
-      };
+    if (risultato) {
+      console.warn(`⚠️ Soglia non trovata per Q${trimestre}/${anno}. Usato Q${prevTrimestre}/${prevAnno}`);
     }
-
-    // 2. Fallback: Trimestre precedente
-    let annoPrec = anno;
-    let trimPrec = trimestre - 1;
-    
-    if (trimPrec <= 0) {
-      trimPrec = 4;
-      annoPrec = anno - 1;
-    }
-
-    const queryFallback = `
-      SELECT tegm, tasso_soglia 
-      FROM soglie_usura 
-      WHERE anno = ? AND trimestre = ? AND tipo_contratto = ? 
-      LIMIT 1
-    `;
-    const resFallback = db.exec(queryFallback, [annoPrec, trimPrec, tipo_contratto]);
-
-    if (resFallback.length > 0 && resFallback[0].values.length > 0) {
-      const row = resFallback[0].values[0];
-      return {
-        trovato: true,
-        tegm: row[0],
-        soglia: row[1],
-        fonte: `Fallback (Trimestre ${trimPrec}/${annoPrec})`,
-        warning: 'Utilizzato dato trimestre precedente per mancanza dati ufficiali.'
-      };
-    }
-
-    // 3. Nessun dato trovato
-    return {
-      trovato: false,
-      tegm: null,
-      soglia: null,
-      fonte: 'Nessun dato',
-      warning: 'Soglia non trovata nel database storico né nei fallback.'
-    };
-
-  } catch (err) {
-    console.error('Errore in get_soglia_db:', err);
-    return { trovato: false, errore: err.message };
   }
+
+  return risultato;
 }
 
-/**
- * Calcola il tasso soglia per i moratori
- * Legge la regola dal DB (es. R004)
- */
-function calcola_soglia_moratori(db, tasso_soglia_usura) {
-  try {
-    // Cerca regola R004 (Tasso mora)
-    const res = db.exec("SELECT parametri FROM regole_normative WHERE codice_regola = 'R004' AND attiva = 1 LIMIT 1");
-    
-    if (res.length === 0 || res[0].values.length === 0) {
-      // Default legale se regola manca: Soglia + 2%
-      return { tasso_mora: tasso_soglia_usura + 0.02, fonte: 'Default Legge' };
-    }
+function calcola_soglia_moratori(tasso_soglia, db) {
+  // Legge delta da regole_normative
+  const regola = db.prepare("SELECT parametri FROM regole_normative WHERE codice_regola = 'R004'").get();
 
-    const params = JSON.parse(res[0].values[0][0]);
-    const delta = params.delta || 0.02;
-    const max = params.max || 0.08;
+  if (!regola) return tasso_soglia;
 
-    let tassoCalcolato = tasso_soglia_usura + delta;
-    
-    // Cap al max legale
-    if (tassoCalcolato > tasso_soglia_usura + max) {
-      tassoCalcolato = tasso_soglia_usura + max;
-    }
+  const { delta = 0.02, max = 0.08 } = JSON.parse(regola.parametri);
 
-    return {
-      tasso_mora: tassoCalcolato,
-      fonte: 'Regola R004 (DB)',
-      parametri: params
-    };
+  // Tasso moratori = soglia + delta (max max% oltre soglia)
+  let tasso_moratori = tasso_soglia + delta;
+  const incremento_max = tasso_soglia * max;
 
-  } catch (err) {
-    return { errore: err.message };
+  if (tasso_moratori - tasso_soglia > incremento_max) {
+    tasso_moratori = tasso_soglia + incremento_max;
   }
+
+  return tasso_moratori;
 }
 
 module.exports = { get_soglia_db, calcola_soglia_moratori };

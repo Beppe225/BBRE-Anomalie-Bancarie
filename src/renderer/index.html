@@ -8,13 +8,81 @@
 </head>
 <body>
   <div class="app-container">
-    <h1>BBRE - Anomalie Bancarie</h1>
-    <p>v1.0.1 - Setup Iniziale Completato</p>
-    <div id="status" style="margin-top: 20px; padding: 20px; background: #1e1e1e; border-radius: 8px;">
-      <p style="color: #4caf50;">✅ Electron caricato correttamente</p>
-      <p style="color: #888;">Context Isolation: attiva</p>
-      <p style="color: #888;">Node Integration: disabilitata</p>
-    </div>
+    <aside class="sidebar">
+      <h1>BBRE</h1>
+      <span class="version">v1.0.1</span>
+      <nav>
+        <button onclick="app.nav('nuova')">+ Nuova Pratica</button>
+        <button onclick="app.nav('archivio')">Archivio</button>
+        <button onclick="app.nav('impostazioni')">Impostazioni</button>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <!-- STEP 1: Contratto -->
+      <section id="step-1" class="step active">
+        <h2>Dati Contratto</h2>
+        <form id="form-contratto">
+          <label>Tipologia
+            <select id="tipo" required>
+              <option value="mutuo_ipotecario">Mutuo Ipotecario</option>
+              <option value="cqs">Cessione Quinto Stipendio</option>
+              <option value="credito_consumo">Credito al Consumo</option>
+            </select>
+          </label>
+          <label>Data Stipula
+            <input type="date" id="data" required>
+          </label>
+          <label>Capitale Nominale (€)
+            <input type="number" id="capitale" step="0.01" required placeholder="10000">
+          </label>
+          <label>TAN Dichiarato (%)
+            <input type="number" id="tan" step="0.01" required placeholder="7.00">
+          </label>
+          <button type="button" class="btn-primary" onclick="app.goToStep(2)">Avanti →</button>
+        </form>
+      </section>
+
+      <!-- STEP 2: Costi -->
+      <section id="step-2" class="step">
+        <h2>Voci di Costo</h2>
+        <div class="cost-actions">
+          <button onclick="app.addCost('Istruttoria')">+ Istruttoria</button>
+          <button onclick="app.addCost('Polizza')">+ Polizza</button>
+          <button onclick="app.addCost('Perizia')">+ Perizia</button>
+        </div>
+        <table id="cost-table">
+          <thead><tr><th>Voce</th><th>Importo</th><th>Inclusa TEG?</th><th></th></tr></thead>
+          <tbody id="cost-list"></tbody>
+        </table>
+        <button class="btn-primary" id="btn-run" onclick="app.runAnalysis()">Esegui Analisi</button>
+      </section>
+
+      <!-- STEP 3: Risultati -->
+      <section id="step-3" class="step">
+        <h2>Risultati Analisi</h2>
+        <div class="results-grid">
+          <div class="score-panel">
+            <h3>Valutazione Rischio</h3>
+            <div class="score-circle" id="score-circle">
+              <span id="score-val">-</span>
+            </div>
+            <p>TAN: <span id="res-tan">-</span></p>
+            <p>TAEG: <span id="res-teg">-</span></p>
+            <p>Soglia: <span id="res-soglia">-</span></p>
+            <button class="btn-secondary" onclick="app.generatePDF()">Scarica Report PDF</button>
+          </div>
+          <div class="factors-panel">
+            <h3>Scheda Fattori (F1-F6)</h3>
+            <table>
+              <thead><tr><th>ID</th><th>Fattore</th><th>Valore</th><th>Peso</th></tr></thead>
+              <tbody id="factors-list"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
+  <script src="app.js"></script>
 </body>
 </html>
