@@ -1,24 +1,69 @@
-﻿function seedRegole(db) {
-  console.log('📜 [Seed] Inserimento regole normative...');
-  
+﻿/**
+ * Seed regole normative (R001-R005)
+ */
+
+function seedRegoleNormative(db) {
+  console.log('📜 Inserimento regole normative...');
+
   const regole = [
-    { codice: 'R001', descrizione: 'Spese di istruttoria incluse nel TEG se anticipate', tipo: 'inclusione', parametri: JSON.stringify({anticipate: true}), attiva: 1 },
-    { codice: 'R002', descrizione: 'Polizza credito/impiego esclusa se non obbligatoria', tipo: 'esclusione', parametri: JSON.stringify({obbligatoria: false}), attiva: 1 },
-    { codice: 'R003', descrizione: 'Commissioni di massimo scoperto escluse dal TEGM', tipo: 'esclusione', parametri: JSON.stringify({tipo: 'cms'}), attiva: 1 },
-    { codice: 'R004', descrizione: 'Tasso mora = tasso soglia + 2% (max 8%)', tipo: 'soglia', parametri: JSON.stringify({delta: 0.02, max: 0.08}), attiva: 1 },
-    { codice: 'R005', descrizione: 'Ricalcolo TEG con convenzione actual/365', tipo: 'calcolo', parametri: JSON.stringify({base_giorni: 365}), attiva: 1 }
+    [
+      'R001',
+      'Spese di istruttoria incluse nel TEG se anticipate',
+      'inclusione',
+      JSON.stringify({ anticipate: true }),
+      1,
+      '2005-01-01',
+      null
+    ],
+    [
+      'R002',
+      'Polizza credito/impiego esclusa se non obbligatoria',
+      'esclusione',
+      JSON.stringify({ obbligatoria: false }),
+      1,
+      '2005-01-01',
+      null
+    ],
+    [
+      'R003',
+      'Commissioni di massimo scoperto (CMS) escluse dal TEGM',
+      'esclusione',
+      JSON.stringify({ tipo: 'cms' }),
+      1,
+      '2005-01-01',
+      null
+    ],
+    [
+      'R004',
+      'Tasso moratori = tasso soglia + 2% (max 8% oltre soglia)',
+      'soglia',
+      JSON.stringify({ delta: 0.02, max: 0.08 }),
+      1,
+      '2005-01-01',
+      null
+    ],
+    [
+      'R005',
+      'Ricalcolo TEG con convenzione actual/365',
+      'calcolo',
+      JSON.stringify({ base_giorni: 365 }),
+      1,
+      '2005-01-01',
+      null
+    ]
   ];
 
-  db.run("BEGIN TRANSACTION");
-  const stmt = db.prepare("INSERT OR IGNORE INTO regole_normative (codice_regola, descrizione, tipo_regola, parametri, attiva) VALUES (?, ?, ?, ?, ?)");
-  
-  for (const r of regole) {
-    stmt.run(r.codice, r.descrizione, r.tipo, r.parametri, r.attiva);
+  const stmt = db.prepare(`
+    INSERT INTO regole_normative 
+    (codice_regola, descrizione, tipo_regola, parametri, attiva, valid_from, valid_to)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  for (const regola of regole) {
+    stmt.run(...regola);
   }
-  
-  stmt.free();
-  db.run("COMMIT");
-  console.log('✅ [Seed] Regole R001-R005 caricate.');
+
+  console.log('✅ Inserite 5 regole normative (R001-R005)');
 }
 
-module.exports = { seedRegole };
+module.exports = { seedRegoleNormative };

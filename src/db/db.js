@@ -1,66 +1,71 @@
-﻿const initSqlJs = require('sql.js');
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
+const initSqlJs = require('sql.js');
 
 class DatabaseManager {
   constructor(dbPath) {
     this.dbPath = dbPath;
     this.db = null;
-    this.SQL = null;
   }
 
   async init() {
     try {
-      this.SQL = await initSqlJs();
+      const SQL = await initSqlJs();
       
       // Carica DB esistente o crea nuovo
       if (fs.existsSync(this.dbPath)) {
         const fileBuffer = fs.readFileSync(this.dbPath);
-        this.db = new this.SQL.Database(fileBuffer);
+        this.db = SQL.Database(fileBuffer);
         console.log('✅ Database caricato da:', this.dbPath);
       } else {
-        this.db = new this.SQL.Database();
-        console.log('✅ Nuovo database creato in memoria');
+        this.db = new SQL.Database();
+        console.log('📝 Nuovo database creato');
       }
 
-      // Esegui schema
-      const schemaPath = path.join(__dirname, 'schema.sql');
-      const schema = fs.readFileSync(schemaPath, 'utf8');
-      this.db.run(schema);
-      console.log('✅ Schema database inizializzato');
-
-      // Salva immediatamente
-      this.save();
+      // Inizializza schema se non esiste
+      await this.initSchema();
       
       return this.db;
-    } catch (error) {
-      console.error('❌ Errore inizializzazione DB:', error);
-      throw error;
+    } catch (err) {
+      console.error('❌ Errore inizializzazione DB:', err);
+      throw err;
     }
   }
 
-  save() {
-    if (!this.db) return;
-    
-    const data = this.db.export();
-    const buffer = Buffer.from(data);
-    
-    // Assicurati che la cartella esista
-    const dir = path.dirname(this.dbPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+  async initSchema() {
+    try {
+      const schemaPath = path.join(__dirname, 'schema.sql');
+      const schema = fs.readFileSync(schemaPath, 'utf8');
+      
+      // Esegui solo se le tabelle non esistono
+      const tableCheck = this.db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='soglie_usura'");
+      
+      if (tableCheck.length === 0 || tableCheck[0].values.length === 0) {
+        this.db.run(schema);
+        this.save();
+        console.log('✅ Schema database inizializzato');
+      }
+    } catch (err) {
+      console.error('❌ Errore schema:', err);
+      throw err;
     }
-    
-    fs.writeFileSync(this.dbPath, buffer);
   }
 
   getDb() {
     return this.db;
   }
 
-  close() {
+  save() {
     if (this.db) {
-      this.save();
+      const data = this.db.export();
+      const buffer = Buffer.from(data);
+      fs.writeFileSync(this.dbPath, buffer);
+    }
+  }
+
+  close() {
+    this.save();
+    if (this.db) {
       this.db.close();
     }
   }
