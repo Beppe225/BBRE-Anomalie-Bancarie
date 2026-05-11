@@ -1,83 +1,133 @@
-﻿const crypto = require('crypto');
+﻿/**
+ * orchestrator.js - Coordinatore analisi completa
+ * FASE 2: Coordina math, normativa, DB e audit
+ */
+
 const { calcola_irr } = require('./math/irr_teg');
 const { get_soglia_db, calcola_soglia_moratori } = require('./math/soglia_calculator');
-const { applica_regole } = require('./normativa/regole_engine');
+const { determina_inclusione_voci } = require('./normativa/regole_engine');
 const { calcola_score } = require('./normativa/score_engine');
+const crypto = require('crypto');
 
-async function esegui_analisi(db, input) {
-  console.log('🏁 [Orchestrator] Avvio analisi per:', input.contratto_id);
+async function esegui_analisi(db, payload) {
+  console.log('🏁 [Orchestrator] Avvio analisi...');
+  console.log('Payload:', JSON.stringify(payload, null, 2));
   
+  const { contratto_id, tipo_contratto, data_stipula, capitale, tan_dichiarato, voci } = payload;
+
   try {
-    if (!input.capitale || !input.data_stipula || !input.voci) {
-      throw new Error('Dati contratto incompleti');
+    // Step 1: Determina inclusione voci
+    console.log('📋 Step 1: Applicazione regole normative...');
+    const voci_analizzate = determina_inclusione_voci(db, voci, tipo_contratto);
+
+    // Step 2: Costruisci flussi di cassa
+    console.log('📊 Step 2: Costruzione flussi di cassa...');
+    
+    // Flusso iniziale: erogazione (negativo per la banca, positivo per il cliente)
+    // Ma per IRR convenzionale: capitale erogato è negativo (uscita per banca)
+    const flussi = [ -capitale ];
+    
+    const voci_incluse = voci_analizzate.filter(v => v.inclusa_teg);
+    const totale_costi = voci_incluse.reduce((sum, v) => sum + v.importo, 0);
+    
+    console.log(`  Capitale: € ${capitale.toFixed(2)}`);
+    console.log(`  Costi inclusi TEG: € ${totale_costi.toFixed(2)} (${voci_incluse.length} voci)`);
+    
+    // I costi si sommano all'importo finanziato (riducono il flusso iniziale negativo)
+    // Quindi: flussi[0] = -(capitale - costi) = -capitale + costi
+    // Ma convenzionalmente: flussi[0] = -capitale, e i costi sono "anticipati"
+    // Quindi: flussi[0] = -(capitale - costi)
+    flussi[0] = -(capitale - totale_costi);
+    
+    console.log(`  Flusso iniziale netto: € ${flussi[0].toFixed(2)}`);
+    
+    // Simula rate (semplificato: 1 anno, 12 rate mensili)
+    const numero_rate = 12;
+    const tasso_mensile = tan_dichiarato / 12;
+    
+    // Calcola rata con ammortamento francese
+    const rata = tan_dichiarato > 0 
+      ? (capitale * tasso_mensile) / (1 - Math.pow(1 + tasso_mensile, -numero_rate))
+      : capitale / numero_rate;
+
+    console.log(`  Rata mensile: € ${rata.toFixed(2)}`);
+    
+    // Aggiungi rate (positive per la banca, negative per il cliente)
+    for (let i = 0; i < numero_rate; i++) {
+      flussi.push(rata);
     }
 
-    // 1. Applica Regole
-    const regoleRisultato = applica_regole(db, input.voci);
-    const costiFiltrati = regoleRisultato.voci_processate.filter(v => v.inclusa_teg);
-    const totCosti = costiFiltrati.reduce((acc, v) => acc + v.importo, 0);
-    const nettoErogato = input.capitale - totCosti;
+    console.log(`  Flussi totali: ${flussi.length} (${flussi.map(f => f.toFixed(2)).join(', ')})`);
+
+    // Step 3: Calcola IRR/TEG
+    console.log('🧮 Step 3: Calcolo IRR...');
+    const irr_result = calcola_irr(flussi, tan_dichiarato);
+    console.log(`  IRR: ${(irr_result.irr_annuale * 100).toFixed(4)}%`);
+
+    // Step 4: Recupera soglia usura
+    console.log('📏 Step 4: Recupero soglia usura...');
+    console.log(`  Data: ${data_stipula}, Tipo: ${tipo_contratto}`);
     
-    // 2. Recupera Soglia
-    const sogliaRes = get_soglia_db(db, input.data_stipula, input.tipo_contratto, input.capitale);
+    const soglia_record = get_soglia_db(db, data_stipula, tipo_contratto);
     
-    // 3. Simula flussi (12 rate mensili)
-    const tan = input.tan_dichiarato || 0.07;
-    const rataMensile = (input.capitale * tan / 12) / (1 - Math.pow(1 + tan / 12, -12));
-    const flussi = [-nettoErogato];
-    const date = [input.data_stipula];
-    for (let i = 1; i <= 12; i++) {
-      flussi.push(rataMensile);
-      const d = new Date(input.data_stipula);
-      d.setMonth(d.getMonth() + i);
-      date.push(d.toISOString());
+    if (!soglia_record) {
+      console.warn('⚠️ Soglia NON trovata nel DB!');
+    } else {
+      console.log('✅ Soglia trovata:', soglia_record);
     }
-
-    // 4. Calcola IRR
-    const irrRisultato = calcola_irr(flussi, date, tan);
-    if (!irrRisultato.convergenza) throw new Error('IRR non convergente');
-
-    // 5. Calcola Score
-    // ✅ FIX: Converti soglia da percentuale a decimale per confronto con IRR (es. 8.56 -> 0.0856)
-    const sogliaDecimale = (sogliaRes.soglia || 0) / 100;
     
-    const scoreRes = calcola_score(irrRisultato.irr_annuale, sogliaDecimale, {
-      data_stipula: input.data_stipula,
-      tipo: input.tipo_contratto,
-      has_polizza_non_obbligatoria: costiFiltrati.some(v => v.voce.toLowerCase().includes('polizza')),
-      moratori_eccessivi: false,
-      dati_completi: true
-    });
+    const soglia = soglia_record ? soglia_record.tasso_soglia : 0;
+    console.log(`  Valore soglia: ${(soglia * 100).toFixed(4)}%`);
 
-    // 6. Audit
-    const hashString = JSON.stringify({
-      input: input.contratto_id,
-      teg: irrRisultato.irr_annuale,
-      soglia: sogliaRes.soglia,
-      score: scoreRes.score
+    // Step 5: Calcola score
+    console.log('📈 Step 5: Calcolo score...');
+    const score_result = calcola_score(irr_result.irr_annuale, soglia, { 
+      polizze_obbligatorie: false,
+      tipo_contratto,
+      data_stipula
     });
-    const hash_catena = crypto.createHash('sha256').update(hashString).digest('hex');
+    console.log(`  Score: ${score_result.score}/4 (${score_result.affidabilita})`);
 
+    // Step 6: Hash audit
+    console.log('🔐 Step 6: Calcolo hash...');
+    const hash_input = JSON.stringify({ 
+      contratto_id, tipo_contratto, capitale, tan_dichiarato, voci,
+      timestamp: Date.now()
+    });
+    const hash_catena = crypto.createHash('sha256').update(hash_input).digest('hex');
+
+    // Step 7: Salva audit
+    console.log('💾 Step 7: Salvataggio audit...');
     try {
-      const stmt = db.prepare(`INSERT INTO audit_analisi (analisi_id, hash_catena, versione_engine, dataset_soglie, timestamp_analisi, output_hash) VALUES (?, ?, ?, ?, ?, ?)`);
-      stmt.run(input.contratto_id, hash_catena, '1.0.0', sogliaRes.fonte || 'N/A', new Date().toISOString(), crypto.createHash('sha256').update(JSON.stringify(scoreRes)).digest('hex'));
-      db.run("COMMIT");
-    } catch (dbErr) { console.warn('️ Errore audit:', dbErr.message); }
+      const stmt = db.prepare(`
+        INSERT OR REPLACE INTO audit_analisi 
+        (analisi_id, contratto_id, hash_catena, versione_engine, dataset_soglie, timestamp_analisi)
+        VALUES (?, ?, ?, '1.0.0', 'seed_v1', datetime('now'))
+      `);
+      stmt.run(contratto_id, contratto_id, hash_catena);
+      console.log('  ✅ Audit salvato');
+    } catch (dbErr) {
+      console.error('❌ Errore audit:', dbErr.message);
+    }
 
-    // 7. Return
     return {
-      teg: irrRisultato.irr_annuale,
-      soglia: sogliaRes.soglia || 0, // Ritorna come percentuale per la UI
-      score: scoreRes.score,
-      descrizione_score: scoreRes.descrizione,
-      fattori: scoreRes.fattori,
-      affidabilita: scoreRes.affidabilita,
-      orientamento_giurisp: scoreRes.orientamento_giurisp,
-      hash_catena: hash_catena
+      contratto_id,
+      teg: irr_result.irr_annuale,
+      soglia,
+      score: score_result.score,
+      fattori: score_result.fattori,
+      affidabilita: score_result.affidabilita,
+      orientamento_giurisp: score_result.orientamento_giurisp,
+      hash_catena,
+      convergenza_irr: irr_result.convergenza,
+      metodo_irr: irr_result.metodo_usato,
+      iterazioni_irr: irr_result.iterazioni,
+      voci_analizzate,
+      totale_costi_inclusi: totale_costi
     };
 
   } catch (err) {
-    console.error('❌ [Orchestrator] Errore:', err);
+    console.error('❌ Errore orchestrator:', err);
     throw err;
   }
 }

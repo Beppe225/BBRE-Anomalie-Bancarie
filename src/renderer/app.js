@@ -1,315 +1,203 @@
-﻿// App State Globale
-const state = {
+﻿// Stato Globale
+const AppState = {
   step: 1,
   contratto: {},
   costi: []
 };
 
-window.appState = state;
-
+// Funzioni esposte al renderer
 window.app = {
   nav: (page) => {
     if (page === 'nuova') app.goToStep(1);
-    if (page === 'archivio') {
-      app.loadArchive();
-      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-      document.getElementById('step-archivio').classList.add('active');
-    }
-    if (page === 'impostazioni') {
-      app.loadSettings();
-      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-      document.getElementById('step-impostazioni').classList.add('active');
-    }
   },
 
   goToStep: (target) => {
-    if (state.step === 1 && target === 2) {
-      const form = document.getElementById('form-contratto');
-      if (!form.checkValidity()) {
-        alert('Compila tutti i campi obbligatori!');
-        form.reportValidity();
+    console.log('Navigazione verso Step:', target);
+    
+    if (AppState.step === 1 && target === 2) {
+      const tipo = document.getElementById('tipo').value;
+      const data = document.getElementById('data').value;
+      const capitale = document.getElementById('capitale').value;
+      const tan = document.getElementById('tan').value;
+
+      if (!tipo || !data || !capitale || !tan) {
+        alert('⚠️ Compila tutti i campi obbligatori!');
         return;
       }
-      
-      state.contratto = {
+
+      AppState.contratto = {
         contratto_id: 'BBRE-' + Date.now(),
-        tipo_contratto: document.getElementById('tipo').value,
-        data_stipula: document.getElementById('data').value,
-        capitale: parseFloat(document.getElementById('capitale').value),
-        tan_dichiarato: parseFloat(document.getElementById('tan').value) / 100
+        tipo_contratto: tipo,
+        data_stipula: data,
+        capitale: parseFloat(capitale),
+        tan_dichiarato: parseFloat(tan) / 100
       };
+      console.log('✅ Dati contratto salvati:', AppState.contratto);
     }
 
     document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-    document.getElementById('step-' + target).classList.add('active');
-    state.step = target;
+    const next = document.getElementById('step-' + target);
+    if (next) {
+      next.classList.add('active');
+      AppState.step = target;
+    }
   },
 
   addCost: (type) => {
-    const container = document.createElement('div');
-    container.className = 'cost-input-modal';
-    container.innerHTML = `
-      <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;">
-        <div style="background:#1e1e1e;padding:30px;border-radius:8px;border:2px solid #c9a227;max-width:400px;width:90%;">
-          <h3 style="margin-top:0;color:#c9a227;">Aggiungi ${type}</h3>
-          <input type="number" id="temp-cost-amount" step="0.01" placeholder="Importo in €" style="width:100%;padding:12px;margin:15px 0;background:#222;border:1px solid #333;color:white;font-size:18px;" autofocus>
-          <div style="display:flex;gap:10px;justify-content:flex-end;">
-            <button id="btn-cancel" style="padding:10px 20px;background:#333;color:white;border:none;cursor:pointer;border-radius:4px;">Annulla</button>
-            <button id="btn-confirm" style="padding:10px 20px;background:#c9a227;color:#000;border:none;cursor:pointer;border-radius:4px;font-weight:bold;">Conferma</button>
-          </div>
+    console.log('🖱️ Click su:', type);
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal-content" style="background:#1e1e1e;padding:30px;border-radius:8px;border:2px solid #c9a227;max-width:400px;">
+        <h3 style="color:#c9a227;margin-top:0;">Aggiungi ${type}</h3>
+        <input type="number" id="temp-cost-input" step="0.01" placeholder="Importo in €" 
+               style="width:100%;padding:12px;margin:15px 0;background:#222;border:1px solid #444;color:#fff;font-size:18px;" autofocus>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="btn-cancel" style="padding:10px 20px;background:#333;color:#fff;border:none;cursor:pointer;">Annulla</button>
+          <button id="btn-confirm" style="padding:10px 20px;background:#c9a227;color:#000;border:none;cursor:pointer;font-weight:bold;">Conferma</button>
         </div>
       </div>
     `;
-    document.body.appendChild(container);
-    const input = document.getElementById('temp-cost-amount');
+    document.body.appendChild(modal);
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;';
+    
+    const input = document.getElementById('temp-cost-input');
     input.focus();
     
-    const close = () => container.remove();
+    const close = () => modal.remove();
+    
     const confirm = () => {
-      const amount = parseFloat(input.value);
-      if (isNaN(amount) || amount <= 0) {
+      const importo = parseFloat(input.value);
+      if (isNaN(importo) || importo <= 0) {
         alert('Inserisci un importo valido!');
         input.focus();
         return;
       }
-      state.costi.push({ voce: type, importo: amount, tipologia: 'spesa', inclusa: true });
+      
+      AppState.costi.push({
+        id: Date.now(),
+        voce: type,
+        importo: importo,
+        inclusa: true
+      });
+      
+      console.log('✅ Aggiunto:', type, importo);
       close();
       app.renderCosts();
     };
     
     document.getElementById('btn-confirm').onclick = confirm;
     document.getElementById('btn-cancel').onclick = close;
-    input.onkeydown = (e) => { if (e.key === 'Enter') confirm(); if (e.key === 'Escape') close(); };
+    
+    input.onkeydown = (e) => {
+      if (e.key === 'Enter') confirm();
+      if (e.key === 'Escape') close();
+    };
   },
 
   renderCosts: () => {
     const tbody = document.getElementById('cost-list');
     if (!tbody) return;
+    
     tbody.innerHTML = '';
-    if (state.costi.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#888;padding:20px;">Nessuna voce di costo inserita</td></tr>';
+    if (AppState.costi.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#666;padding:15px;">Nessuna voce inserita</td></tr>';
       return;
     }
-    const totale = state.costi.reduce((sum, c) => sum + c.importo, 0);
-    state.costi.forEach((c, i) => {
+
+    AppState.costi.forEach((c, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="padding:10px;">${c.voce}</td>
         <td style="padding:10px;">€ ${c.importo.toFixed(2)}</td>
-        <td style="padding:10px;"><input type="checkbox" ${c.inclusa ? 'checked' : ''} onclick="app.toggleCost(${i})"></td>
-        <td style="padding:10px;"><button onclick="app.removeCost(${i})" style="background:#ff4d4d;color:white;border:none;padding:5px 10px;cursor:pointer;border-radius:3px;">✕</button></td>
+        <td style="padding:10px;"><input type="checkbox" ${c.inclusa ? 'checked' : ''} onchange="app.toggleCost(${i})"></td>
+        <td style="padding:10px;"><button onclick="app.removeCost(${i})" style="color:#ff4d4d;background:none;border:none;cursor:pointer;font-size:18px;">✕</button></td>
       `;
       tbody.appendChild(tr);
     });
-    const trTotale = document.createElement('tr');
-    trTotale.style.fontWeight = 'bold';
-    trTotale.style.background = '#1e1e1e';
-    trTotale.innerHTML = `
-      <td colspan="3" style="text-align:right;padding:10px;">TOTALE:</td>
-      <td style="padding:10px;color:#c9a227;">€ ${totale.toFixed(2)}</td>
-    `;
-    tbody.appendChild(trTotale);
   },
 
-  toggleCost: (idx) => { state.costi[idx].inclusa = !state.costi[idx].inclusa; },
-  removeCost: (idx) => { state.costi.splice(idx, 1); app.renderCosts(); },
+  toggleCost: (idx) => {
+    AppState.costi[idx].inclusa = !AppState.costi[idx].inclusa;
+  },
+
+  removeCost: (idx) => {
+    AppState.costi.splice(idx, 1);
+    app.renderCosts();
+  },
 
   runAnalysis: async () => {
-    if (state.costi.length === 0) {
-      alert('Aggiungi almeno una voce di costo!');
+    console.log('🚀 Avvio Analisi...');
+    if (AppState.costi.length === 0) {
+      alert('⚠️ Aggiungi almeno una voce di costo!');
       return;
     }
-    const btn = document.getElementById('btn-run');
-    const originalText = btn.innerText;
-    btn.innerText = 'Calcolo in corso...';
-    btn.disabled = true;
 
     try {
       const payload = {
-        ...state.contratto,
-        voci: state.costi.map(c => ({ voce: c.voce, importo: c.importo, tipologia: c.tipologia, inclusa_teg: c.inclusa }))
+        ...AppState.contratto,
+        voci: AppState.costi.map(c => ({ voce: c.voce, importo: c.importo, inclusa_teg: c.inclusa }))
       };
+
       const result = await window.electronAPI.invoke('esegui-analisi', payload);
+      
       if (result.successo) {
         app.showResults(result.dati);
         app.goToStep(3);
       } else {
-        alert('Errore Analisi: ' + result.errore);
+        alert('❌ Errore Analisi: ' + result.errore);
       }
     } catch (err) {
       console.error('Errore IPC:', err);
-      alert('Errore di comunicazione: ' + err.message);
-    } finally {
-      btn.innerText = originalText;
-      btn.disabled = false;
+      alert('❌ Errore di comunicazione: ' + err.message);
     }
   },
 
   showResults: (data) => {
-    console.log('📊 Risultati:', data);
+    console.log('📊 Risultati ricevuti:', data);
     
-    const scoreEl = document.getElementById('score-val');
-    if (scoreEl) {
-      scoreEl.innerText = data.score;
-      scoreEl.style.borderColor = data.score >= 3 ? '#ff4d4d' : (data.score <= 1 ? '#4caf50' : '#c9a227');
+    // Mostra TAN dal contratto salvato
+    const tanPercentuale = (AppState.contratto.tan_dichiarato * 100).toFixed(2);
+    document.getElementById('res-tan').innerText = tanPercentuale + '%';
+    
+    // Mostra TAEG
+    const tegPercentuale = (data.teg * 100).toFixed(4);
+    document.getElementById('res-teg').innerText = tegPercentuale + '%';
+    
+    // Mostra Soglia
+    const sogliaPercentuale = (data.soglia * 100).toFixed(4);
+    document.getElementById('res-soglia').innerText = sogliaPercentuale + '%';
+    
+    // Mostra Score
+    document.getElementById('score-val').innerText = data.score;
+    
+    // Mostra Affidabilità
+    const affElement = document.getElementById('res-aff');
+    if (affElement) {
+      affElement.innerText = data.affidabilita || '-';
     }
-
-    document.getElementById('res-tan').innerText = (state.contratto.tan_dichiarato * 100).toFixed(2) + '%';
-    document.getElementById('res-teg').innerText = (data.teg * 100).toFixed(4) + '%';
-    document.getElementById('res-soglia').innerText = (data.soglia || 0).toFixed(4) + '%';
-
+    
+    // Aggiorna tabella fattori
     const tbody = document.getElementById('factors-list');
-    if (tbody) {
+    if (tbody && data.fattori) {
       tbody.innerHTML = '';
-      if (data.fattori && data.fattori.length > 0) {
-        data.fattori.forEach(f => {
-          tbody.innerHTML += `
-            <tr>
-              <td style="padding:8px;">${f.id}</td>
-              <td style="padding:8px;">${f.nome}</td>
-              <td style="padding:8px;">${(f.valore * 100).toFixed(1)}%</td>
-              <td style="padding:8px;">${(f.peso * 100).toFixed(0)}%</td>
-            </tr>`;
-        });
-      } else {
-        tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;">Nessun fattore disponibile</td></tr>';
-      }
-    }
-  },
-
-  generatePDF: async () => {
-    try {
-      const btn = document.querySelector('#step-3 .btn-primary');
-      const originalText = btn.innerText;
-      btn.innerText = 'Salvataggio...';
-      btn.disabled = true;
-
-      const datiCompleti = {
-        ...state.contratto,
-        voci: state.costi.map(c => ({ 
-          voce: c.voce, 
-          importo: c.importo, 
-          inclusa_teg: c.inclusa,
-          motivazione: c.inclusa ? 'Inclusa nel calcolo TEG' : 'Esclusa per normativa'
-        })),
-        teg: parseFloat((document.getElementById('res-teg').innerText.replace('%','')))/100 || 0,
-        soglia: parseFloat((document.getElementById('res-soglia').innerText.replace('%','')))/100 || 0,
-        score: parseInt(document.getElementById('score-val').innerText) || 0,
-        fattori: Array.from(document.querySelectorAll('#factors-list tr')).map(row => ({
-          id: row.cells[0].innerText,
-          nome: row.cells[1].innerText,
-          valore: parseFloat(row.cells[2].innerText.replace('%',''))/100,
-          peso: parseFloat(row.cells[3].innerText.replace('%',''))/100
-        }))
-      };
-
-      const result = await window.electronAPI.invoke('salva-pdf-dialog', datiCompleti);
-
-      if (result.successo) {
-        alert('✅ Report salvato con successo!\n\nPercorso: ' + result.path);
-      } else if (result.messaggio) {
-        console.log('Salvataggio annullato');
-      } else {
-        alert('❌ Errore PDF: ' + result.errore);
-      }
-    } catch (e) {
-      console.error(e);
-      alert('❌ Errore di sistema: ' + e.message);
-    } finally {
-      const btn = document.querySelector('#step-3 .btn-primary');
-      if(btn) {
-        btn.innerText = 'Scarica Report PDF';
-        btn.disabled = false;
-      }
-    }
-  },
-
-  loadArchive: async () => {
-    const tbody = document.getElementById('archive-list');
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Caricamento...</td></tr>';
-    
-    try {
-      const response = await window.electronAPI.invoke('get-analisi-list');
-      
-      if (!response.successo || !response.dati || response.dati.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Nessuna pratica salvata.</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = '';
-      response.dati.forEach(item => {
-        const scoreColor = item.score <= 1 ? '#4caf50' : (item.score <= 2 ? '#c9a227' : '#ff4d4d');
-        const date = new Date(item.timestamp_analisi).toLocaleDateString('it-IT');
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td style="font-family:monospace; font-size:11px;">${item.analisi_id.substring(0, 8)}...</td>
-          <td>${date}</td>
-          <td><span style="background:${scoreColor}; color:white; padding:2px 6px; border-radius:4px; font-weight:bold;">${item.score}</span></td>
-          <td>${(item.teg * 100).toFixed(2)}%</td>
-          <td>${(item.soglia * 100).toFixed(2)}%</td>
-          <td>
-            <button onclick="app.deleteArchiveEntry('${item.analisi_id}', this)" style="background:#ff4d4d; color:white; border:none; padding:4px 8px; cursor:pointer;border-radius:3px;">🗑️</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
+      data.fattori.forEach(f => {
+        tbody.innerHTML += `<tr><td>${f.id}</td><td>${f.nome}</td><td>${(f.valore*100).toFixed(1)}%</td><td>${(f.peso*100).toFixed(0)}%</td></tr>`;
       });
-    } catch (e) {
-      console.error(e);
-      tbody.innerHTML = '<tr><td colspan="6" style="color:red;">Errore nel caricamento</td></tr>';
     }
   },
 
-  deleteArchiveEntry: async (id, btnElement) => {
-    if (!confirm(`Sei sicuro di voler eliminare la pratica ${id.substring(0, 8)}...?`)) return;
-    
-    try {
-      const res = await window.electronAPI.invoke('delete-analisi', id);
-      if (res.successo) {
-        btnElement.closest('tr').remove();
-      } else {
-        alert('Errore: ' + res.errore);
-      }
-    } catch (e) {
-      alert('Errore di connessione');
-    }
-  },
-
-  loadSettings: async () => {
-    try {
-      const info = await window.electronAPI.invoke('get-system-info');
-      if (info.successo) {
-        document.getElementById('sys-version').innerText = info.appVersion;
-        document.getElementById('sys-db-path').innerText = info.dbPath;
-        
-        const lastUpdate = info.config['ultimo_update_soglie'] || 'Mai';
-        document.getElementById('sys-soglie-update').innerText = new Date(lastUpdate).toLocaleDateString('it-IT');
-      }
-    } catch (e) {
-      console.error(e);
-    }
+  generatePDF: () => { 
+    alert('📄 Generazione PDF in sviluppo...');
+    // Implementazione Fase 4
   },
   
-  exportCSV: () => {
-    alert('Funzione Export CSV: I dati verranno scaricati in formato CSV. (In sviluppo)');
-  },
-
-  backupDB: async () => {
-    try {
-      const result = await window.electronAPI.invoke('backup-db');
-      if (result.successo) {
-        alert('✅ Backup creato con successo!\n\nPercorso: ' + result.path);
-      } else if (result.messaggio) {
-        console.log('Backup annullato');
-      } else {
-        alert('❌ Errore Backup: ' + result.errore);
-      }
-    } catch (e) {
-      alert('❌ Errore di sistema: ' + e.message);
-    }
-  }
+  loadArchive: () => { console.log('📂 Carico Archivio'); },
+  loadSettings: () => { console.log('⚙️ Carico Impostazioni'); }
 };
 
-document.addEventListener('DOMContentLoaded', () => { 
-  console.log('✅ BBRE UI pronta.'); 
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ BBRE UI pronta.');
+  app.renderCosts();
 });

@@ -1,9 +1,35 @@
 ﻿/**
  * regole_engine.js - Motore regole da DB
+ * FASE 2: Determina inclusione/esclusione voci costo
+ * 
+ * NOTA: Usiamo sql.js che ha API diversa da better-sqlite3
  */
 
 function determina_inclusione_voci(db, voci, tipo_contratto) {
-  const regole = db.prepare("SELECT * FROM regole_normative WHERE attiva = 1").all();
+  console.log('📋 Determina inclusione voci...');
+  
+  // In sql.js usiamo db.exec() invece di prepare().all()
+  const query = "SELECT * FROM regole_normative WHERE attiva = 1";
+  const results = db.exec(query);
+  
+  // db.exec ritorna array di oggetti {columns: [...], values: [[...]]}
+  let regole = [];
+  if (results.length > 0) {
+    const columns = results[0].columns;
+    const values = results[0].values;
+    
+    // Convertiamo in array di oggetti
+    regole = values.map(row => {
+      const obj = {};
+      columns.forEach((col, idx) => {
+        obj[col] = row[idx];
+      });
+      return obj;
+    });
+  }
+  
+  console.log('Regole caricate:', regole.length);
+  
   const risultati = [];
 
   for (const voce of voci) {
@@ -11,30 +37,49 @@ function determina_inclusione_voci(db, voci, tipo_contratto) {
     let motivazione = 'Inclusa di default';
     let regola_id = null;
 
-    // Applica regole di esclusione
+    // Applica regole di esclusione basate sul tipo di voce
+    const voceLower = voce.voce.toLowerCase();
+    
     for (const regola of regole) {
-      const params = JSON.parse(regola.parametri);
-
-      if (regola.tipo_regola === 'esclusione') {
-        // Esempio: Polizza non obbligatoria -> esclusa
-        if (voce.voce.toLowerCase().includes('polizza') && !params.obbligatoria) {
-          inclusa = false;
-          motivazione = `Esclusa per regola ${regola.codice_regola}`;
-          regola_id = regola.codice_regola;
-          break;
+      try {
+        const params = JSON.parse(regola.parametri || '{}');
+        
+        // R002: Polizze non obbligatorie -> escluse
+        if (regola.codice_regola === 'R002' && regola.tipo_regola === 'esclusione') {
+          if (voceLower.includes('polizza') || voceLower.includes('assicurazione')) {
+            if (!params.obbligatoria) {
+              inclusa = false;
+              motivazione = `Esclusa: ${regola.descrizione}`;
+              regola_id = regola.codice_regola;
+              break;
+            }
+          }
         }
+        
+        // R003: CMS escluse
+        if (regola.codice_regola === 'R003' && regola.tipo_regola === 'esclusione') {
+          if (voceLower.includes('cms') || voceLower.includes('commissione massimo scoperto')) {
+            inclusa = false;
+            motivazione = `Esclusa: ${regola.descrizione}`;
+            regola_id = regola.codice_regola;
+            break;
+          }
+        }
+      } catch (err) {
+        console.warn(`⚠️ Errore parsing parametri regola ${regola.codice_regola}:`, err);
       }
     }
 
     risultati.push({
       voce: voce.voce,
       importo: voce.importo,
-      inclusa,
+      inclusa_teg: inclusa,
       motivazione,
       regola_id
     });
   }
 
+  console.log('✅ Voci analizzate:', risultati);
   return risultati;
 }
 

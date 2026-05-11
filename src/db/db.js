@@ -10,43 +10,26 @@ class DatabaseManager {
 
   async init() {
     try {
-      const SQL = await initSqlJs();
+      console.log('🗄️  Inizializzazione sql.js...');
       
-      // Carica DB esistente o crea nuovo
+      // Inizializza il modulo WASM in modo esplicito e sicuro
+      const SQL = await initSqlJs({
+        locateFile: (file) => path.join(__dirname, '../../node_modules/sql.js/dist/', file)
+      });
+
       if (fs.existsSync(this.dbPath)) {
-        const fileBuffer = fs.readFileSync(this.dbPath);
-        this.db = SQL.Database(fileBuffer);
+        const buffer = fs.readFileSync(this.dbPath);
+        // sql.js si aspetta Uint8Array, converte Buffer di Node
+        this.db = new SQL.Database(new Uint8Array(buffer));
         console.log('✅ Database caricato da:', this.dbPath);
       } else {
         this.db = new SQL.Database();
-        console.log('📝 Nuovo database creato');
+        console.log('📝 Nuovo database creato in memoria');
       }
 
-      // Inizializza schema se non esiste
-      await this.initSchema();
-      
       return this.db;
     } catch (err) {
-      console.error('❌ Errore inizializzazione DB:', err);
-      throw err;
-    }
-  }
-
-  async initSchema() {
-    try {
-      const schemaPath = path.join(__dirname, 'schema.sql');
-      const schema = fs.readFileSync(schemaPath, 'utf8');
-      
-      // Esegui solo se le tabelle non esistono
-      const tableCheck = this.db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='soglie_usura'");
-      
-      if (tableCheck.length === 0 || tableCheck[0].values.length === 0) {
-        this.db.run(schema);
-        this.save();
-        console.log('✅ Schema database inizializzato');
-      }
-    } catch (err) {
-      console.error('❌ Errore schema:', err);
+      console.error('❌ Errore critico DB:', err.message);
       throw err;
     }
   }
@@ -58,8 +41,12 @@ class DatabaseManager {
   save() {
     if (this.db) {
       const data = this.db.export();
-      const buffer = Buffer.from(data);
-      fs.writeFileSync(this.dbPath, buffer);
+      // Assicura che la cartella esista
+      const dir = path.dirname(this.dbPath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      
+      fs.writeFileSync(this.dbPath, Buffer.from(data));
+      console.log('💾 Database salvato su disco');
     }
   }
 
