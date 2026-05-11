@@ -1,0 +1,56 @@
+{
+  "name": "bbre-anomalie-bancarie",
+  "version": "1.0.1",
+  "description": "BBRE - Analisi Anomalie Bancarie e Usura",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "test": "node --test src/engine/__tests__/*.js",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "sql.js": "^1.10.0",
+    "xlsx": "^0.18.5",
+    "pdf-lib": "^1.17.1",
+    "node-fetch": "^2.7.0",
+    "electron-updater": "^6.1.7"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.bbre.anomalie",
+    "productName": "BBRE Anomalie Bancarie",
+    "executableName": "bbre-anomalie",
+    "directories": { "output": "dist" },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "data/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "mac": { "target": "dmg" },
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/sql.js/**/*",
+      "node_modules/xlsx/**/*"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "Beppe225",
+      "repo": "BBRE-Anomalie-Bancarie",
+      "private": false,
+      "releaseType": "release"
+    }
+  },
+  "keywords": ["bbre", "usura", "teg", "banche", "anomalie"],
+  "author": "BBRE Team",
+  "license": "ISC",
+  "type": "commonjs"
+}

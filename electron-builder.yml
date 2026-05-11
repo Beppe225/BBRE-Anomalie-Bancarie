@@ -1,0 +1,28 @@
+﻿{
+  "appId": "com.bbre.anomalie",
+  "productName": "BBRE Anomalie Bancarie",
+  "directories": {
+    "output": "dist"
+  },
+  "files": [
+    "src/**/*",
+    "package.json",
+    "data/**/*",
+    "node_modules/sql.js/**/*",
+    "node_modules/xlsx/**/*",
+    "node_modules/pdf-lib/**/*",
+    "node_modules/node-fetch/**/*",
+    "node_modules/electron/**/*"
+  ],
+  "win": {
+    "target": "nsis"
+  },
+  "mac": {
+    "target": "dmg"
+  },
+  "asar": true,
+  "asarUnpack": [
+    "node_modules/sql.js/**/*",
+    "node_modules/better-sqlite3/**/*"
+  ]
+}

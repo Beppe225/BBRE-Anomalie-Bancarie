@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Report BBRE</title>
+  <style>
+    @page { size: A4; margin: 1.5cm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #000; line-height: 1.4; }
+    h1, h2, h3 { color: #111; border-bottom: 2px solid #000; padding-bottom: 5px; }
+    
+    .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
+    .header h1 { margin: 0; border: none; font-size: 24pt; }
+    .header p { margin: 5px 0; color: #555; }
+
+    .score-badge { font-size: 24pt; font-weight: bold; border: 3px solid #000; padding: 10px 20px; display: inline-block; margin: 20px 0; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10pt; }
+    th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+    th { background-color: #eee; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+
+    .disclaimer { margin-top: 50px; padding: 15px; border: 1px solid #000; font-size: 8pt; background: #fff; }
+    .audit { font-family: monospace; font-size: 9pt; word-break: break-all; }
+
+    /* QR Code area */
+    #qrcode { text-align: center; margin-top: 20px; }
+  </style>
+  <!-- Libreria leggera per QR Code lato client -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+</head>
+<body>
+
+  <div class="header">
+    <h1>BBRE — Anomalie Bancarie</h1>
+    <p>Report di Analisi TEG / Usura</p>
+    <p>Data Generazione: <span id="data-gen"></span></p>
+  </div>
+
+  <!-- SEZIONE 1: DATI CONTRATTO -->
+  <h2>1. Dati Contratto</h2>
+  <div class="grid-2">
+    <div>
+      <p><strong>Contratto ID:</strong> <span id="r-id"></span></p>
+      <p><strong>Tipologia:</strong> <span id="r-tipo"></span></p>
+      <p><strong>Data Stipula:</strong> <span id="r-data"></span></p>
+    </div>
+    <div>
+      <p><strong>Capitale Nominale:</strong> € <span id="r-capitale"></span></p>
+      <p><strong>TAN Dichiarato:</strong> <span id="r-tan"></span>%</p>
+      <p><strong>Numero Rate:</strong> <span id="r-rate"></span></p>
+    </div>
+  </div>
+
+  <!-- SEZIONE 2: RISULTATI ANALISI -->
+  <h2>2. Risultati TEG & Soglia</h2>
+  <div style="text-align:center;">
+    <div class="score-badge">SCORE RISCHIO: <span id="r-score"></span>/4</div>
+  </div>
+  <table>
+    <tr><th>Indicatore</th><th>Valore</th></tr>
+    <tr><td>TAN Dichiarato</td><td id="r-tan-val"></td></tr>
+    <tr><td>TAEG Effettivo (Calcolato)</td><td id="r-taeg-val"></td></tr>
+    <tr><td>Soglia Usura (Rif. BdI)</td><td id="r-soglia-val"></td></tr>
+    <tr><td>Scostamento</td><td id="r-scostamento"></td></tr>
+  </table>
+
+  <!-- SEZIONE 3: SCHEDA FATTORI -->
+  <h2>3. Scheda Fattori (Audit)</h2>
+  <table id="r-fattori-table">
+    <thead>
+      <tr><th>ID</th><th>Fattore</th><th>Valore</th><th>Peso</th></tr>
+    </thead>
+    <tbody id="r-fattori-body">
+      <!-- Popolato via JS -->
+    </tbody>
+  </table>
+
+  <!-- SEZIONE 4: VOCI DI COSTO ANALIZZATE -->
+  <h2>4. Dettaglio Costi Inclusi/Esclusi</h2>
+  <table>
+    <thead><tr><th>Voce</th><th>Importo</th><th>Incluso TEG?</th><th>Regola</th></tr></thead>
+    <tbody id="r-costi-body"></tbody>
+  </table>
+
+  <!-- SEZIONE 5: AUDIT & DISCLAIMER -->
+  <div class="disclaimer">
+    <h3>⚠️ Disclaimer & Audit Trail</h3>
+    <p>Questo report è generato automaticamente dal software BBRE. I valori della soglia di usura sono basati sui dati Banca d'Italia importati al momento dell'analisi.</p>
+    <p><strong>Audit Hash:</strong> <span id="r-hash" class="audit"></span></p>
+    <p><strong>Versione Engine:</strong> <span id="r-versione"></span></p>
+    <p><strong>Timestamp Analisi:</strong> <span id="r-timestamp"></span></p>
+  </div>
+
+  <!-- QR CODE -->
+  <div id="qrcode"></div>
+
+  <script>
+    // Funzione che riceve i dati dal Node.js e popola il template
+    window.renderReport = function(data) {
+      document.getElementById('data-gen').innerText = new Date().toLocaleDateString('it-IT');
+      document.getElementById('r-id').innerText = data.contratto_id;
+      document.getElementById('r-tipo').innerText = data.tipo_contratto;
+      document.getElementById('r-data').innerText = data.data_stipula;
+      document.getElementById('r-capitale').innerText = data.capitale.toFixed(2);
+      document.getElementById('r-tan').innerText = (data.tan_dichiarato * 100).toFixed(2);
+      document.getElementById('r-rate').innerText = data.voci ? data.voci.length : 'N/D';
+
+      document.getElementById('r-score').innerText = data.score;
+      document.getElementById('r-tan-val').innerText = (data.tan_dichiarato * 100).toFixed(2) + '%';
+      document.getElementById('r-taeg-val').innerText = (data.teg * 100).toFixed(4) + '%';
+      document.getElementById('r-soglia-val').innerText = (data.soglia).toFixed(4) + '%';
+      document.getElementById('r-scostamento').innerText = ((data.teg * 100) - data.soglia).toFixed(4) + '%';
+
+      document.getElementById('r-hash').innerText = data.hash_catena;
+      document.getElementById('r-versione').innerText = '1.0.0';
+      document.getElementById('r-timestamp').innerText = new Date().toISOString();
+
+      // Tabella Fattori
+      const fattoriBody = document.getElementById('r-fattori-body');
+      fattoriBody.innerHTML = '';
+      if (data.fattori) {
+        data.fattori.forEach(f => {
+          fattoriBody.innerHTML += `<tr><td>${f.id}</td><td>${f.nome}</td><td>${(f.valore*100).toFixed(1)}%</td><td>${(f.peso*100).toFixed(0)}%</td></tr>`;
+        });
+      }
+
+      // Tabella Costi
+      const costiBody = document.getElementById('r-costi-body');
+      costiBody.innerHTML = '';
+      if (data.voci) {
+        data.voci.forEach(v => {
+          costiBody.innerHTML += `<tr><td>${v.voce}</td><td>€ ${v.importo.toFixed(2)}</td><td>${v.inclusa_teg ? 'SÌ' : 'NO'}</td><td>${v.motivazione || '-'}</td></tr>`;
+        });
+      }
+
+      // QR Code (Link fittizio di verifica)
+      const qr = qrcode(0, 'L');
+      qr.addData(`bbre://verify/${data.hash_catena}`);
+      qr.make();
+      document.getElementById('qrcode').innerHTML = qr.createSvgTag(4);
+    };
+  </script>
+</body>
+</html>
