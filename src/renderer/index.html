@@ -2,171 +2,19 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>BBRE Anomalie Bancarie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BBRE - Anomalie Bancarie</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app-container">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="logo">
-        <h2>BBRE</h2>
-        <span>v1.0.0</span>
-      </div>
-      <nav>
-        <button onclick="app.nav('nuova')">+ Nuova Pratica</button>
-        <button onclick="app.nav('archivio')">Archivio</button>
-        <button onclick="app.nav('impostazioni')">Impostazioni</button>
-      </nav>
-      <div id="market-widget" class="market-widget">
-        <h4>Mercato (Indicativo)</h4>
-        <p>Caricamento dati...</p>
-        <span class="badge-warning">! DATI NON VALIDI PER PERIZIA</span>
-      </div>
-    </aside>
-
-    <!-- MAIN -->
-    <main class="content">
-      
-      <!-- STEP 1 -->
-      <section id="step-1" class="step active">
-        <h1>Dati Contratto</h1>
-        <form id="form-contratto">
-          <div class="form-group">
-            <label>Tipologia</label>
-            <select id="tipo" required>
-              <option value="mutuo_ipotecario">Mutuo Ipotecario</option>
-              <option value="cqs">Cessione Quinto (CQS)</option>
-              <option value="credito_consumo">Credito al Consumo</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Data Stipula</label>
-            <input type="date" id="data" required>
-          </div>
-          <div class="form-group">
-            <label>Capitale Nominale (€)</label>
-            <input type="number" id="capitale" step="0.01" required>
-          </div>
-          <div class="form-group">
-            <label>TAN Dichiarato (%)</label>
-            <input type="number" id="tan" step="0.01" required>
-          </div>
-          <button type="button" class="btn-primary" onclick="app.goToStep(2)">Avanti →</button>
-        </form>
-      </section>
-
-      <!-- STEP 2 -->
-      <section id="step-2" class="step">
-        <h1>Voci di Costo</h1>
-        <div class="toolbar">
-          <button class="btn-small" id="btn-istruttoria" onclick="app.addCost('Istruttoria')">+ Istruttoria</button>
-          <button class="btn-small" id="btn-polizza" onclick="app.addCost('Polizza')">+ Polizza</button>
-          <button class="btn-small" id="btn-spese" onclick="app.addCost('Spese Incasso')">+ Spese Incasso</button>
-        </div>
-        <table id="cost-table">
-          <thead>
-            <tr>
-              <th>Voce</th>
-              <th>Importo</th>
-              <th>Inclusa TEG</th>
-              <th>Az.</th>
-            </tr>
-          </thead>
-          <tbody id="cost-list">
-            <tr><td colspan="4" style="text-align:center;color:#888;padding:20px;">Nessuna voce di costo inserita</td></tr>
-          </tbody>
-        </table>
-        <div class="toolbar">
-          <button class="btn-secondary" onclick="app.goToStep(1)">← Indietro</button>
-          <button id="btn-run" class="btn-primary" onclick="app.runAnalysis()">Esegui Analisi</button>
-        </div>
-      </section>
-
-      <!-- STEP 3 -->
-      <section id="step-3" class="step">
-        <h1>Risultati Analisi</h1>
-        <div class="results-grid">
-          <div class="card score-card">
-            <h3>Valutazione Rischio</h3>
-            <div id="score-val" class="score-circle">?</div>
-            <div class="info-row">
-              <p>TAN: <span id="res-tan">-</span></p>
-              <p>TAEG: <span id="res-teg">-</span></p>
-              <p>Soglia: <span id="res-soglia">-</span></p>
-            </div>
-            <button class="btn-primary" onclick="app.generatePDF()">Scarica Report PDF</button>
-          </div>
-          <div class="card">
-            <h3>Scheda Fattori (F1-F6)</h3>
-            <table class="factors-table">
-              <thead><tr><th>ID</th><th>Fattore</th><th>Valore</th><th>Peso</th></tr></thead>
-              <tbody id="factors-list"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-    
-      <!-- SEZIONE ARCHIVIO -->
-      <section id="step-archivio" class="step">
-        <h1>📂 Archivio Pratiche</h1>
-        <div class="toolbar" style="margin-bottom: 15px; display:flex; gap:10px;">
-           <button class="btn-small" onclick="app.loadArchive()">🔄 Aggiorna Lista</button>
-           <button class="btn-small" onclick="app.exportCSV()">📄 Esporta CSV</button>
-        </div>
-        <table class="archive-table">
-          <thead>
-            <tr>
-              <th>ID Pratica</th>
-              <th>Data</th>
-              <th>Score</th>
-              <th>TAEG</th>
-              <th>Soglia</th>
-              <th>Azioni</th>
-            </tr>
-          </thead>
-          <tbody id="archive-list">
-            <!-- Popolato via JS -->
-          </tbody>
-        </table>
-      </section>
-
-      <!-- SEZIONE IMPOSTAZIONI -->
-      <section id="step-impostazioni" class="step">
-        <h1>⚙️ Impostazioni di Sistema</h1>
-        <div class="card" style="padding: 20px; background: #1e1e1e; border: 1px solid #333; border-radius: 8px; max-width: 600px;">
-          <h3>Informazioni Versione</h3>
-          <table style="width:100%; border:none;">
-            <tr>
-              <td style="padding:10px 0; border:none; color:#888;">Versione App:</td>
-              <td style="padding:10px 0; border:none; font-weight:bold;" id="sys-version">Caricamento...</td>
-            </tr>
-            <tr>
-              <td style="padding:10px 0; border:none; color:#888;">Ultimo Aggiornamento Soglie:</td>
-              <td style="padding:10px 0; border:none;" id="sys-soglie-update">-</td>
-            </tr>
-            <tr>
-              <td style="padding:10px 0; border:none; color:#888;">Percorso Database:</td>
-              <td style="padding:10px 0; border:none; font-family:monospace; font-size:11px;" id="sys-db-path">-</td>
-            </tr>
-          </table>
-          
-          <hr style="border-color: #333; margin: 20px 0;">
-          
-          <h3>Manutenzione</h3>
-          <p style="color:#888; font-size:12px;">Nota: Il backup crea una copia del database. Il reset è irreversibile.</p>
-          <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn-secondary" onclick="app.backupDB()" style="background:#4caf50; color:white; border:none; padding:10px 20px; cursor:pointer;">💾 Backup Database</button>
-            <button class="btn-danger" onclick="alert('Funzione Reset DB in sviluppo...')" style="background:#ff4d4d; color:white; border:none; padding:10px 20px; cursor:pointer;">⚠️ Reset Dati</button>
-          </div>
-        </div>
-      </section>
-  </main>
+    <h1>BBRE - Anomalie Bancarie</h1>
+    <p>v1.0.1 - Setup Iniziale Completato</p>
+    <div id="status" style="margin-top: 20px; padding: 20px; background: #1e1e1e; border-radius: 8px;">
+      <p style="color: #4caf50;">✅ Electron caricato correttamente</p>
+      <p style="color: #888;">Context Isolation: attiva</p>
+      <p style="color: #888;">Node Integration: disabilitata</p>
+    </div>
   </div>
-  <script src="app.js"></script>
-<script src="../market/ui_widget.js"></script>
 </body>
 </html>
-
-

@@ -4,3 +4,4 @@ data/*.db
 export/
 .env
 .DS_Store
+*.log

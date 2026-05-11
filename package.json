@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "bbre-anomalie-bancarie",
   "version": "1.0.1",
   "description": "BBRE - Analisi Anomalie Bancarie e Usura",
@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
     "test": "node --test src/engine/__tests__/*.js",
     "postinstall": "electron-builder install-app-deps"
   },
@@ -24,7 +25,9 @@
     "appId": "com.bbre.anomalie",
     "productName": "BBRE Anomalie Bancarie",
     "executableName": "bbre-anomalie",
-    "directories": { "output": "dist" },
+    "directories": {
+      "output": "dist"
+    },
     "files": [
       "src/**/*",
       "package.json",
@@ -35,7 +38,9 @@
       "target": "nsis",
       "requestedExecutionLevel": "asInvoker"
     },
-    "mac": { "target": "dmg" },
+    "mac": {
+      "target": "dmg"
+    },
     "asar": true,
     "asarUnpack": [
       "node_modules/sql.js/**/*",
