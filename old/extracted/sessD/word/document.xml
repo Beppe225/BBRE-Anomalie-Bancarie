@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:oel="http://schemas.microsoft.com/office/2019/extlst" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16sdtfl="http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16sdtfl w16du wp14">
+  <w:body>
+    <w:p w14:paraId="1899247A" w14:textId="43CEE74C" w:rsidR="00FC51C5" w:rsidRDefault="000C0DEF">
+      <w:r>
+        <w:t>SESSIONE D — Generazione Report PDF</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="39303E7D" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF"/>
+    <w:p w14:paraId="6F9433F2" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">Sei un senior developer Node.js. Stai costruendo il modulo report </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2399B790" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">di "BBRE Anomalie Bancarie", app Electron già completa con DB, </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5B23D179" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>engine e UI funzionante.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="0827F7B6" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="0056B20D" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Devi costruire /src/reports/report_generator.js</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="18F9414A" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="2D4A7FF0" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">TECNOLOGIA: Puppeteer (HTML→PDF) oppure jsPDF se Puppeteer </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1E1AEA0B" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>troppo pesante per Electron. Scegli tu il più adatto e motiva.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="09917B78" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="2D3A6B68" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>STRUTTURA REPORT PDF — una funzione genera_report(analisi_id):</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="35375331" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="267F538C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── COPERTINA (pagina 1)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7DB4E60A" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Logo BBRE (testo "BBRE" stylizzato se no immagine)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1FEA1914" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Titolo: "ANALISI PRELIMINARE ANOMALIE BANCARIE"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="72D0C916" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Sottotitolo: "Verifica usurarietà contratto di finanziamento"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4EBF535E" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Data analisi, numero pratica, tipo contratto</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1CEE1917" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="754535F5" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── SEZIONE 1 — DATI CONTRATTO (pagina 2)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7B33F774" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Tabella riepilogo tutti i dati inseriti</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="13A91C4C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Fonte: "Dati dichiarati dal richiedente / estratti da documento"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="59AF4C86" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="3517A45F" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── SEZIONE 2 — METODOLOGIA DI CALCOLO (pagina 2-3)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6709955E" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">"Il TEG reale è calcolato mediante metodo IRR (Internal Rate </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="75B43493" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">of Return) sul flusso di cassa mensile effettivo, in conformità </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1D51EE28" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">con la prassi dei Consulenti Tecnici di Parte (CTP) e dei </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6B2A26A8" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Consulenti Tecnici d'Ufficio (CTU) in materia bancaria."</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4B19E8BA" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Tabella: voce per voce — inclusa/esclusa — motivazione</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3C01FE6A" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="3389EFFE" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── SEZIONE 3 — SOGLIA USURA APPLICABILE (pagina 3)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4DC8A1B0" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>"Decreto MEF del [data], GU n. [numero]"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="24EFC28B" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Categoria operazione: [X]</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1D070DAA" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">Classe importo: [Y]  </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="32A3EAF5" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>TEGM: [X]% — Tasso soglia: [Y]%</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="55797552" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Formula applicata: [vecchia/nuova] — motivazione per epoca</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2F96AD19" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="427B578C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── SEZIONE 4 — RISULTATI (pagina 4) — IL CUORE</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="10DA69EF" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Tabella comparativa:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="261EA1A9" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">  TEG dichiarato:     XX.XX%</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="002C8DD7" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">  TEG reale:          XX.XX%  ← in grassetto</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="484A227C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">  Soglia usura:       XX.XX%</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5F19BD6C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">  Delta (reale-soglia): +/- XX.XX punti %</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7984C04E" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Score: [0-4] — [label descrittiva]</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="74D27C00" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Orientamento giurisprudenziale: [FAVOREVOLE/DIVISO/ecc.]</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="49EBFC04" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="7D301492" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── SEZIONE 5 — QUADRO NORMATIVO (pagina 5)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="38920D31" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Per ogni riferimento: norma/sentenza — anno — contenuto sintetico</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5610D6DC" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>INCLUDI SEMPRE riferimenti sia favorevoli che contrari.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5F0F8964" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Sezione "Orientamenti difformi" obbligatoria se score &lt; 4.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7216A880" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="6A4B3B45" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── SEZIONE 6 — STIMA ECONOMICA (pagina 5-6)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="632DC12C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Interessi totali stimati versati: € [X]</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6D589F88" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Recupero potenziale min: € [X] — max: € [X]</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7BED097B" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>"Stima basata su [X] mesi di rate effettive al TEG dichiarato"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4F91B53C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="23E29AE3" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── SEZIONE 7 — CONCLUSIONI E RACCOMANDAZIONI (pagina 6)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="475CB302" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>Testo automatico parametrizzato per score:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4A4C2493" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:lastRenderedPageBreak/>
+        <w:t xml:space="preserve">  Score 0: "Nessuna anomalia rilevata..."</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6623F4DD" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">  Score 1-2: "Si suggerisce approfondimento documentale..."</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="0C75BDD8" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">  Score 3-4: "Si raccomanda perizia econometrica formale..."</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1C00CF1A" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="6615E4CC" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>── DISCLAIMER (ultima pagina — testo fisso)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="70F74378" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">"Il presente documento è un'analisi preliminare automatizzata </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="58E438DF" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">a scopo esclusivamente orientativo. Non costituisce perizia </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="46669A9A" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">econometrica ai sensi degli artt. 61 e ss. c.p.c., né parere </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6945ECBF" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">legale ai sensi della L. 247/2012. I dati e i calcoli si basano </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3A983D52" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">sulle informazioni fornite dal richiedente. Per l'avvio di </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7D7535C6" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">qualsiasi procedimento giudiziario o stragiudiziale è </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="149CD59C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">indispensabile una perizia formale redatta da un Consulente </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5FBB6BB4" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">Tecnico abilitato e l'assistenza di un legale specializzato. </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="341FD4C6" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">BBRE Group declina ogni responsabilità per decisioni assunte </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4432777C" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>sulla base esclusiva di questo documento."</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5F1EBBCB" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="39173C3B" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>REQUISITI GRAFICI:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4B6E62F9" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>- Ottimizzato B/N: nessuno sfondo colorato, solo testo e bordi</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="64D7C57E" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>- Header/footer su ogni pagina con numero pagina e data</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="44C06736" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>- Tabelle con bordi netti, righe alternate grigio chiaro</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="244466CC" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>- Font serif per titoli, sans-serif per corpo</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6F287454" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>- Score rappresentato con testo + simbolo (non solo colore)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7E039AA5" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t xml:space="preserve">  Es: "● ALTO (4/4)" non solo pallino rosso</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6B50ADF1" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF"/>
+    <w:p w14:paraId="112DD616" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>DELIVERABLE sessione D:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="267AD43F" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>1. /src/reports/report_generator.js — generatore completo</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="512D4EF3" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>2. /src/reports/templates/ — template HTML usato da Puppeteer</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="523AA6DA" w14:textId="77777777" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>3. /src/main/ipc_handlers.js — aggiorna con handler genera_report</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6D73AAFD" w14:textId="2F1FEC96" w:rsidR="000C0DEF" w:rsidRDefault="000C0DEF" w:rsidP="000C0DEF">
+      <w:r>
+        <w:t>4. Testa generazione su un'analisi di esempio e conferma PDF OK</w:t>
+      </w:r>
+    </w:p>
+    <w:sectPr w:rsidR="000C0DEF">
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1417" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/>
+      <w:cols w:space="708"/>
+      <w:docGrid w:linePitch="360"/>
+    </w:sectPr>
+  </w:body>
+</w:document>

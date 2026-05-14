@@ -1,0 +1,22 @@
+{
+  "name": "bbre-anomalie-bancarie",
+  "version": "1.0.0",
+  "description": "BBRE Anomalie Bancarie — Decision Support System per analisi usura/TEG/polizze",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "setup": "node src/db/setup.js --fresh",
+    "seed-soglie": "node src/db/seed_soglie.js",
+    "seed-regole": "node src/db/seed_regole.js",
+    "seed-all": "npm run migrate && npm run seed-regole && npm run seed-soglie",
+    "test-db": "node src/db/test_db.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.6.0",
+    "electron": "^29.1.4",
+    "node-fetch": "^2.7.0",
+    "xlsx": "^0.18.5"
+  },
+  "author": "BBRE SRL",
+  "license": "UNLICENSED"
+}

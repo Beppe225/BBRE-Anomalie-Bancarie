@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:oel="http://schemas.microsoft.com/office/2019/extlst" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16sdtfl="http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16sdtfl w16du wp14">
+  <w:body>
+    <w:p w14:paraId="45829A8C" w14:textId="79484BF0" w:rsidR="00FC51C5" w:rsidRDefault="0055767F">
+      <w:r>
+        <w:t>SESSIONE E — Upload Documento + Parser OCR/LLM</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2DC5A095" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F"/>
+    <w:p w14:paraId="3190C5A6" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">Sei un senior developer Node.js + Electron. Stai aggiungendo </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="19FB406E" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">il modulo di upload e parsing documenti a "BBRE Anomalie Bancarie", </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="56E38E9B" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>app già completa con DB, engine, UI e generazione report.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="72E2B78F" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="7EA8CE53" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">Devi costruire /src/parser/ per estrarre automaticamente i dati </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2D003D37" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>contrattuali da PDF o DOCX caricato dall'utente.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7D393294" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="16566289" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>── FLUSSO:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="0B0EE489" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>1. Utente clicca "Carica documento contratto" nella UI</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5562092D" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>2. Dialog file picker (PDF o DOCX)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2D06E009" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>3. Estrazione testo raw dal documento</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7BCD8731" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>4. Chiamata API LLM (Anthropic Claude) per strutturazione dati</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="16C85F69" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>5. Popolamento automatico form Step 1 e Step 2</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2000F552" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>6. Utente rivede e corregge campi estratti</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5FD00AC7" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>7. Conferma → salva in DB come pratica normale</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4B3A52C7" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="17867802" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>── MODULI DA COSTRUIRE:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1CB6A4CB" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="25DCBED6" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>/src/parser/text_extractor.js</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2091EF56" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- PDF: usa pdf-parse (npm) per estrazione testo</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="199776AF" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- DOCX: usa mammoth (npm) per estrazione testo</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="62B0D324" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Output: testo grezzo come stringa</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="34A0F56E" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="1DF43F46" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>/src/parser/llm_parser.js</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3E2C30C1" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Chiama Anthropic API (claude-sonnet-4-20250514)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="40572B2A" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- System prompt specializzato per estrazione dati bancari:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6B1FB5EF" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">  Estrai dal testo del contratto bancario italiano questi campi </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3A937D32" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:lastRenderedPageBreak/>
+        <w:t xml:space="preserve">  in formato JSON: tipo_contratto, data_stipula, capitale_erogato,</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4736CC3E" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">  tan, teg_dichiarato, durata_mesi, rata_mensile, ammortamento,</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1C4641A4" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">  voci_costo[] (con descrizione, importo, condizionante, </w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="4E50DF42" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">  inclusa_teg). Per campi non trovati usa null.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="0F91C70A" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">  Rispondi SOLO con JSON valido, nessun testo aggiuntivo.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="668D78DD" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Gestisci errori parsing JSON con retry (max 2)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5C6292E5" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Output: oggetto strutturato pronto per popolamento form</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4CAA4883" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="3BACA3F4" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>/src/parser/confidence_scorer.js</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="691AA3BA" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Per ogni campo estratto assegna confidence 0-1</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3E07F97A" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Bassa confidence (&lt;0.7) → campo evidenziato in giallo nella UI</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="52FA8E2B" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Campi con confidence=0 (non trovati) → campo vuoto + warning</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="712CE115" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="61C3DE2F" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>── UI aggiuntiva in /src/renderer/app.js:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="322F9F25" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Bottone "</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Segoe UI Emoji" w:hAnsi="Segoe UI Emoji" w:cs="Segoe UI Emoji"/>
+        </w:rPr>
+        <w:t>📄</w:t>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> Carica Documento" nella sezione Nuova Pratica</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="67F921C2" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Progress bar durante elaborazione</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5B910F14" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Schermata review: tutti i campi estratti con badge confidence</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="66FC58EA" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">  Verde &gt;0.8 | Giallo 0.5-0.8 | Rosso &lt;0.5</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="79EC035D" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Testo estratto raw visibile in accordion (per verifica manuale)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6E49F860" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="26CA62CD" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>── SICUREZZA:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3D3D29EA" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">- API key Anthropic: salvata in file config locale </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6E7DCEDF" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">  (/src/config/config.json, escluso da git)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6B762B2F" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Prima configurazione: dialog setup API key se non presente</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2F6392C0" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>- Testo del contratto NON viene loggato né salvato raw nel DB</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1A01A027" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F"/>
+    <w:p w14:paraId="4B69A7D2" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>DELIVERABLE sessione E:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2F581136" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>1. /src/parser/text_extractor.js</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="60990A00" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:lastRenderedPageBreak/>
+        <w:t xml:space="preserve">2. /src/parser/llm_parser.js  </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6A21837B" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>3. /src/parser/confidence_scorer.js</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="22BDEB97" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>4. /src/config/config_manager.js (gestione API key)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6B03B487" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>5. UI aggiornata con flusso upload completo</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="0831937C" w14:textId="77777777" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t>6. Test su un contratto PDF di esempio (anche fittizio)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6490902E" w14:textId="70F3BA03" w:rsidR="0055767F" w:rsidRDefault="0055767F" w:rsidP="0055767F">
+      <w:r>
+        <w:t xml:space="preserve">   e conferma estrazione dati corretta</w:t>
+      </w:r>
+    </w:p>
+    <w:sectPr w:rsidR="0055767F">
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1417" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/>
+      <w:cols w:space="708"/>
+      <w:docGrid w:linePitch="360"/>
+    </w:sectPr>
+  </w:body>
+</w:document>

@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:oel="http://schemas.microsoft.com/office/2019/extlst" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16sdtfl="http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16sdtfl w16du wp14">
+  <w:body>
+    <w:p w14:paraId="0A312B59" w14:textId="45C575C8" w:rsidR="00FC51C5" w:rsidRDefault="00E9298B">
+      <w:r>
+        <w:t>SESSIONE C — Interfaccia Utente (Form Input + Dashboard)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4436B93C" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B"/>
+    <w:p w14:paraId="43EEE2C5" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Sei un senior developer Electron + HTML/CSS/JS vanilla.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3E7E8B2A" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Stai costruendo la UI di "BBRE Anomalie Bancarie".</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="17AD9DCE" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Il backend (DB SQLite + engine /src/engine/) è già pronto.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7A8BAF9D" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>La comunicazione UI↔main avviene via ipcRenderer/ipcMain Electron.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5BDD1AB0" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="4C55A721" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>STILE BBRE:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="0CF98AFD" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Background: #111111</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5C55B1E6" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Accent gold: #c9a227</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5E96A1EA" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Testo primario: #f0f0f0</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="53CE7449" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Testo secondario: #888</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="324FEC09" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Card background: #1a1a1a</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3F1EF51A" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Border: #2a2a2a</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="21ADCC80" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Font: system-ui, -apple-system, sans-serif</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="238B0D1D" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Ottimizzato B/N per stampa (media print: bg bianco, testo nero)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2882D75F" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="3E8D1614" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>STRUTTURA UI — app single-page con sidebar navigazione:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4594CA71" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="78272E55" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>── SEZIONE 1: Dashboard</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1229788E" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Contatore pratiche totali / per score (card colorate)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5C0294DC" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Lista ultime 10 analisi con score badge colorato</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6A159B61" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Bottone "+ Nuova Pratica"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="59F6C1D0" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="6A761FC7" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>── SEZIONE 2: Nuova Pratica — Step 1 "Dati Contratto"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="50ADFF9E" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Form con questi campi (tutti validati):</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3E342092" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Tipo contratto (select)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="70D26883" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Data stipula (date picker)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="530063DF" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Capitale erogato (€, numerico)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="51044CA2" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:lastRenderedPageBreak/>
+        <w:t>- TAN dichiarato (%, numerico)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2CFCCEE6" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">- TEG/TAEG dichiarato (%, numerico)  </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="799A248B" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Durata (mesi, numerico)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2978E448" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Rata mensile (€, numerico)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1DDA5455" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Tipo ammortamento (select: francese/italiano/bullet)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5BE200DE" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>- Note libere (textarea)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="08482323" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Bottone "Avanti →"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5278AB10" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="7A476B3C" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>── SEZIONE 3: Nuova Pratica — Step 2 "Voci di Costo"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="20E9E89E" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Tabella dinamica — ogni riga è una voce:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="488DA6C7" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">Colonne: Tipo voce | Descrizione | Importo totale € | </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7D43EEAA" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">         Condizionante? (checkbox) | Inclusa TEG dichiarato? (checkbox)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3227EFD0" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Bottone "+ Aggiungi voce"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4127C25F" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">Voci preset rapide: [+ Polizza vita] [+ Polizza rischio] </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2D589F1D" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  [+ Commissione istruttoria] [+ Spese perizia]</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3BDCE4E4" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Bottone "Esegui Analisi →"</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2445D200" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="2596154E" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>── SEZIONE 4: Risultati Analisi</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="09BC19DF" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Layout a due colonne:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="10392CE6" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>SINISTRA — Score visivo:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7C7C1F76" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  - Semaforo grande (verde/giallo/arancione/rosso/rosso scuro)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="40CFDCA4" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  - Numero score (0-4) con label testuale</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="01505347" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  - TEG dichiarato vs TEG reale (confronto visivo con delta)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="01977A27" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  - Soglia usura applicabile (con fonte GU)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2B35D5DB" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  - Orientamento giurisprudenziale (badge: FAVOREVOLE/DIVISO/ecc.)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4B59ED90" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="53FB84F1" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>DESTRA — Dettaglio:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7327E89D" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  - Tabella voci incluse/escluse nel TEG reale</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5D13D1C9" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  - Stima interessi recuperabili (range min-max)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5C63E482" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:lastRenderedPageBreak/>
+        <w:t xml:space="preserve">  - Eventuali warnings (polizze facoltative, moratori, ecc.)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7F423CEB" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">  - Riferimenti normativi applicabili (accordion espandibile)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2B280094" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="38AAF553" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Bottone "Genera Report PDF" → chiama sessione D</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1192368A" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Bottone "Salva Pratica" → salva in DB</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="31430741" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="737A0826" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>── SEZIONE 5: Archivio Pratiche</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="2B979B35" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Tabella di tutte le analisi salvate</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="722A0E67" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Colonne: Data | Tipo | Capitale | TEG reale | Score | Azioni</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="52777091" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Filtri: per score, per tipo contratto, per anno stipula</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4B263AEC" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Export CSV della lista</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="14AF5E2F" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="26BCDA83" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>DELIVERABLE sessione C:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="3617983A" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>1. /src/renderer/index.html — struttura completa</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4237AB3B" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>2. /src/renderer/style.css — tutti gli stili + media print</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6CB0DF2E" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>3. /src/renderer/app.js — logica navigazione + chiamate IPC</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="586EE55D" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">4. /src/main/ipc_handlers.js — tutti gli handler IPC </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="31621227" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">   (salva_contratto, salva_voci, esegui_analisi, </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1A5F3531" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t xml:space="preserve">   lista_analisi, get_analisi)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="5188562B" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>5. UI funzionante end-to-end (inserimento → analisi → risultati)</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="765E8064" w14:textId="77777777" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B"/>
+    <w:p w14:paraId="2AFDECBC" w14:textId="22707531" w:rsidR="00E9298B" w:rsidRDefault="00E9298B" w:rsidP="00E9298B">
+      <w:r>
+        <w:t>Non generare ancora il report PDF. Solo UI interattiva.</w:t>
+      </w:r>
+    </w:p>
+    <w:sectPr w:rsidR="00E9298B">
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1417" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/>
+      <w:cols w:space="708"/>
+      <w:docGrid w:linePitch="360"/>
+    </w:sectPr>
+  </w:body>
+</w:document>

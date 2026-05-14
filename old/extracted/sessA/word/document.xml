@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:oel="http://schemas.microsoft.com/office/2019/extlst" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16sdtfl="http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16sdtfl w16du wp14">
+  <w:body>
+    <w:p w14:paraId="5E149F5F" w14:textId="58CD4F47" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>SESSIONE A — Database + Struttura Progetto</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="32787B7B" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="6588E523" w14:textId="5832DDEC" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>Sei un senior developer Electron + Node.js + SQLite.</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="4FCB5910" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">Devi costruire "BBRE Anomalie Bancarie" (BBRE-AB), app desktop </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4724A37D" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>per analisi anomalie (usura, anatocismo) su contratti bancari italiani.</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="63A0C2BB" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="295B7559" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>STACK: Electron + Node.js + Express locale + SQLite (WAL mode)</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="34B1A303" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>STILE: sfondo #111, accent gold #c9a227, ottimizzato stampa B/N</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="1DC76F1A" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>CARTELLE:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="06FDF717" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>/src/main        → processi Electron main</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="57FCDB23" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>/src/renderer    → UI HTML/CSS/JS</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="1A6FA6E2" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>/src/db          → schema, migrations, seed</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="4861E56C" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>/src/engine      → calcoli TEG, IRR, soglie</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="6EAB3859" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>/src/reports     → generazione PDF/DOCX</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="399D9F8D" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="6EFEA961" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>DATABASE SQLite — crea migration completa con queste tabelle:</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="3AB4E12E" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="482F6DC3" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      
+      <w:r>
+        <w:t>contratti(id, tipo [mutuo_fondiario/CQS/credito_consumo/leasing/</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="5E92B9B0" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  finanziamento_aziendale], data_stipula, capitale_erogato, </w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="3DEA8BB3" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  tan_dichiarato, teg_dichiarato, durata_mesi, rata_mensile, </w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="69FE280B" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  ammortamento [francese/italiano/bullet], note, created_at)</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="56531BEA" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="4D62CBC1" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      
+      <w:r>
+        <w:t>voci_costo(id, contratto_id, tipo_voce [commissione/spesa/polizza/</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="622F8C98" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  altro], descrizione, importo_totale, importo_annuo, </w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="5531891F" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  condizionante BOOLEAN, inclusa_teg_dichiarato BOOLEAN, note)</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="6866454C" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="367D690D" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      
+      <w:r>
+        <w:t>soglie_usura(id, anno, trimestre [1/2/3/4], data_inizio, data_fine,</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="0433D58B" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  categoria, classe_importo_min, classe_importo_max,</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="5393E35A" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  tegm, tasso_soglia, formula_applicata [vecchia/nuova], </w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="6B85D3D3" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:lastRenderedPageBreak/>
+        <w:t xml:space="preserve">  fonte_gazzetta, note)</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="081C4795" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="3FF2D168" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      
+      <w:r>
+        <w:t>analisi(id, contratto_id, teg_reale_calcolato, delta_vs_soglia,</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="6158580C" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  soglia_usura_id, score [0/1/2/3/4], </w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="1536B953" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  polizza_condizionante_presente BOOLEAN,</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="6F706D61" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  interessi_stimati_totali, recupero_stimato_min, </w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="47212656" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">  recupero_stimato_max, note_analisi, created_at)</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="5DC89412" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="72E566C7" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      
+      <w:r>
+        <w:t>report(id, analisi_id, path_file, tipo [pdf/docx], created_at)</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="65A4E43D" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="01D4F36C" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">SEED: popola soglie_usura con dati storici MEF/Banca d'Italia </w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="618B21FE" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>dal 2005 al 2026 per le categorie principali:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="31A3EA1D" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>- Mutui ipotecari a tasso fisso</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="78592709" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t xml:space="preserve">- Mutui ipotecari a tasso variabile  </w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="0F3B6F92" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>- Crediti personali / CQS / cessione quinto</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="7633EBB5" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>- Aperture di credito / altri finanziamenti</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="40E67D62" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>Usa dati pubblici ufficiali. Formula vecchia ante-2011 (TEGM×1,5),</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6564F18A" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>nuova dal 2011 (TEGM + 25%TEGM + 4pp, max delta 8pp).</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="6C932C46" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="65165DE8" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>DELIVERABLE sessione A:</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="261D7D73" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>1. package.json con dipendenze (electron, better-sqlite3, express)</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="54627B65" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>2. /src/db/schema.sql — DDL completo con indici</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="6124AAA1" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>3. /src/db/migrations/001_init.js — migration script</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="56B2D3A1" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>4. /src/db/seed_soglie.js — seed soglie storiche 2005-2026</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="256DABF8" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>5. /src/db/db.js — modulo connessione singleton con WAL mode</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="7B6B12D2" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>6. /src/main/main.js — bootstrap Electron base con finestra principale</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="55BDF84D" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>7. Struttura cartelle completa con tutti i file vuoti segnaposto</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="73EB7F1B" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C"/>
+    <w:p w14:paraId="2C78268C" w14:textId="77777777" w:rsidR="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:t>Non costruire ancora UI né engine. Solo DB e bootstrap Electron.</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="1F0CCD37" w14:textId="186B8687" w:rsidR="00A9017C" w:rsidRPr="00A9017C" w:rsidRDefault="00A9017C" w:rsidP="00A9017C">
+      <w:r>
+        <w:lastRenderedPageBreak/>
+        <w:t>Testa che la migration giri senza errori e conferma.</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:sectPr w:rsidR="00A9017C" w:rsidRPr="00A9017C">
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1417" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/>
+      <w:cols w:space="708"/>
+      <w:docGrid w:linePitch="360"/>
+    </w:sectPr>
+  </w:body>
+</w:document>
