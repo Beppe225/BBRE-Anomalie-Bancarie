@@ -42,7 +42,7 @@ async function esegui_analisi(db, payload) {
     console.log(`  Flusso iniziale netto: € ${flussi[0].toFixed(2)}`);
     
     // Simula rate (semplificato: 1 anno, 12 rate mensili)
-    const numero_rate = 12;
+    const numero_rate = payload.durata_mesi || 12;
     const tasso_mensile = tan_dichiarato / 12;
     
     // Calcola rata con ammortamento francese
