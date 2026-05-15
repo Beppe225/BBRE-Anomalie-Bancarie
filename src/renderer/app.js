@@ -137,6 +137,7 @@ window.app = {
 
   showResults: (data) => {
     console.log('📊 Risultati ricevuti:', data);
+    AppState.ultimaAnalisi = data;
 
     // TAN
     const tanPerc = (AppState.contratto.tan_dichiarato * 100).toFixed(2);
@@ -201,10 +202,16 @@ window.app = {
 
   generatePDF: async () => {
     try {
-      const result = await window.electronAPI.invoke('genera-report', {
+      if (!AppState.ultimaAnalisi) {
+        alert('⚠️ Esegui prima un\'analisi!');
+        return;
+      }
+      const payload = {
         ...AppState.contratto,
-        ...AppState.ultimaAnalisi
-      });
+        ...AppState.ultimaAnalisi,
+        voci: AppState.costi
+      };
+      const result = await window.electronAPI.invoke('genera-report', payload);
       if (result.successo) {
         alert('✅ Report PDF salvato in:\n' + result.path_file);
       } else {

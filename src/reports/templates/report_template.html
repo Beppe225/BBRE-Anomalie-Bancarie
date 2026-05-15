@@ -109,8 +109,9 @@
       document.getElementById('r-score').innerText = data.score;
       document.getElementById('r-tan-val').innerText = (data.tan_dichiarato * 100).toFixed(2) + '%';
       document.getElementById('r-taeg-val').innerText = (data.teg * 100).toFixed(4) + '%';
-      document.getElementById('r-soglia-val').innerText = (data.soglia).toFixed(4) + '%';
-      document.getElementById('r-scostamento').innerText = ((data.teg * 100) - data.soglia).toFixed(4) + '%';
+       const sogliaPerc = data.soglia > 1 ? data.soglia : data.soglia * 100;
+      document.getElementById('r-soglia-val').innerText = sogliaPerc.toFixed(4) + '%';
+      document.getElementById('r-scostamento').innerText = (data.delta_pp !== undefined ? (data.delta_pp > 0 ? '+' : '') + data.delta_pp.toFixed(4) : ((data.teg * 100) - sogliaPerc).toFixed(4)) + 'pp';
 
       document.getElementById('r-hash').innerText = data.hash_catena;
       document.getElementById('r-versione').innerText = '1.0.0';
@@ -120,8 +121,10 @@
       const fattoriBody = document.getElementById('r-fattori-body');
       fattoriBody.innerHTML = '';
       if (data.fattori) {
-        data.fattori.forEach(f => {
-          fattoriBody.innerHTML += `<tr><td>${f.id}</td><td>${f.nome}</td><td>${(f.valore*100).toFixed(1)}%</td><td>${(f.peso*100).toFixed(0)}%</td></tr>`;
+  data.fattori.forEach(f => {
+          const label = f.valore_label !== undefined ? f.valore_label : '-';
+          const impatto = f.impatto !== undefined ? f.impatto : '-';
+          fattoriBody.innerHTML += `<tr><td>${f.id}</td><td>${f.nome}</td><td>${label}</td><td>${impatto}</td></tr>`;
         });
       }
 
