@@ -5,7 +5,7 @@ const fs = require('fs');
 async function initCompleteDatabase() {
   console.log('🚀 Inizializzazione database BBRE...\n');
 
-  const dbManager = new DatabaseManager(path.join(__dirname, '../data/bbre.db'));
+  const dbManager = new DatabaseManager(path.join(__dirname, '/data/bbre.db'));
   await dbManager.init();
   const db = dbManager.getDb();
 
