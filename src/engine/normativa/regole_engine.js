@@ -34,11 +34,22 @@ function determina_inclusione_voci(db, voci, tipo_contratto) {
   const risultati = [];
 
   for (const voce of voci) {
+    // Se l'utente ha già scelto esplicitamente, rispetta la scelta
+    if (voce.inclusa_teg === true || voce.inclusa_teg === false) {
+      risultati.push({
+        voce: voce.voce,
+        importo: voce.importo,
+        inclusa_teg: voce.inclusa_teg,
+        motivazione: voce.inclusa_teg ? 'Inclusa dall\'utente' : 'Esclusa dall\'utente',
+        regola_id: null
+      });
+      continue;
+    }
+
     let inclusa = true;
     let motivazione = 'Inclusa di default';
     let regola_id = null;
 
-    // Applica regole di esclusione basate sul tipo di voce
     const voceLower = voce.voce.toLowerCase();
     
     for (const regola of regole) {
