@@ -1,5 +1,6 @@
-﻿const DatabaseManager = require('./db/db');
+﻿const DatabaseManager = require('./src/db/db');
 const path = require('path');
+const fs = require('fs');
 
 async function initCompleteDatabase() {
   console.log('🚀 Inizializzazione database BBRE...\n');
@@ -8,13 +9,16 @@ async function initCompleteDatabase() {
   await dbManager.init();
   const db = dbManager.getDb();
 
-  // 1. VERIFICA SCHEMA
+// 1. CARICA SCHEMA SE DB NUOVO
   const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
   if (tables.length === 0 || tables[0].values.length === 0) {
-    console.error('❌ Schema non trovato!');
-    process.exit(1);
+    console.log('📋 DB nuovo — carico schema...');
+    const schema = fs.readFileSync(path.join(__dirname, 'src/db/schema.sql'), 'utf8');
+    db.run(schema);
+    console.log('✅ Schema caricato');
+  } else {
+    console.log('✅ Tabelle:', tables[0].values.map(t => t[0]).join(', '));
   }
-  console.log('✅ Tabelle:', tables[0].values.map(t => t[0]).join(', '));
 
   // 2. SOGLIE USURA — copertura trimestrale completa 2005-2026
   console.log('\n📊 Inserimento soglie usura...');
