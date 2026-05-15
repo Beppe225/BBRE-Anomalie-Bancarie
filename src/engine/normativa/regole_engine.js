@@ -1,4 +1,5 @@
-﻿/**
+﻿
+/**
  * regole_engine.js - Motore regole da DB
  * FASE 2: Determina inclusione/esclusione voci costo
  * 
@@ -46,9 +47,10 @@ function determina_inclusione_voci(db, voci, tipo_contratto) {
         
         // R002: Polizze non obbligatorie -> escluse
         if (regola.codice_regola === 'R002' && regola.tipo_regola === 'esclusione') {
-          if (voceLower.includes('polizza') || voceLower.includes('assicurazione')) {
-            if (!params.obbligatoria) {
-              inclusa = false;
+  if (voceLower.includes('polizza') || voceLower.includes('assicurazione')) {
+    // Se la voce è già marcata inclusa_teg dall'utente, rispetta la scelta
+    if (!voce.inclusa_teg && !params.obbligatoria) {
+      inclusa = false;
               motivazione = `Esclusa: ${regola.descrizione}`;
               regola_id = regola.codice_regola;
               break;
