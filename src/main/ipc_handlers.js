@@ -134,6 +134,40 @@ function setupIpcHandlers() {
     }
   });
 
+  // ── EXPORT PIANO ANATOCISMO CSV ──────────────────────────────────────────
+
+  ipcMain.handle('export-piano-anatocismo', async (event, { piano_rate, contratto_id }) => {
+    try {
+      if (!piano_rate || piano_rate.length === 0) {
+        return { successo: false, errore: 'Piano rate vuoto' };
+      }
+
+      const cols = ['n', 'data_scadenza', 'rata', 'quota_interessi', 'quota_capitale',
+                    'debito_residuo_inizio', 'debito_residuo_fine'];
+      const header = cols.join(';');
+      const rows   = piano_rate.map(r =>
+        cols.map(c => r[c] != null ? String(r[c]).replace(/;/g, ',') : '').join(';')
+      );
+      const csv = '\uFEFF' + [header, ...rows].join('\r\n');
+
+      const safeId   = (contratto_id || 'Piano').replace(/[^a-zA-Z0-9]/g, '_');
+      const fileName = `BBRE_PianoRate_${safeId}_${Date.now()}.csv`;
+
+      const { filePath } = await dialog.showSaveDialog({
+        defaultPath: path.join(app.getPath('documents'), fileName),
+        filters: [{ name: 'CSV', extensions: ['csv'] }]
+      });
+
+      if (!filePath) return { successo: false, errore: 'Esportazione annullata' };
+      fs.writeFileSync(filePath, csv, 'utf8');
+      console.log('✅ Piano rate salvato:', filePath);
+      return { successo: true, path_file: filePath };
+    } catch (err) {
+      console.error('❌ Errore export piano:', err.message);
+      return { successo: false, errore: err.message };
+    }
+  });
+
   // ── BACKUP DB ────────────────────────────────────────────────────────────
 
   ipcMain.handle('backup-db', async () => {
@@ -185,7 +219,7 @@ function setupIpcHandlers() {
     }
   });
 
-  console.log('✅ IPC Handlers registrati (8 canali)');
+  console.log('✅ IPC Handlers registrati (9 canali)');
 }
 
 module.exports = { setupIpcHandlers };

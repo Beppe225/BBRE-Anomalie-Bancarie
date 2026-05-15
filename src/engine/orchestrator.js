@@ -7,6 +7,7 @@ const { calcola_irr } = require('./math/irr_teg');
 const { get_soglia_db } = require('./math/soglia_calculator');
 const { determina_inclusione_voci } = require('./normativa/regole_engine');
 const { calcola_score } = require('./normativa/score_engine');
+const { analizza_anatocismo } = require('./normativa/anatocismo_engine');
 const crypto = require('crypto');
 
 async function esegui_analisi(db, payload) {
@@ -75,7 +76,24 @@ async function esegui_analisi(db, payload) {
     });
     console.log(`  Score: ${score_result.score}/4 | Label: ${score_result.label}`);
 
-    // Step 7: Hash audit
+    // Step 7: Anatocismo (opzionale — solo ammortamento francese)
+    let risultato_anatocismo = null;
+    const ammortamento_tipo = (payload.ammortamento || 'francese').toLowerCase();
+    if (ammortamento_tipo === 'francese' || ammortamento_tipo === '') {
+      console.log('🏦 Step 7: Analisi anatocismo (ammortamento francese)...');
+      try {
+        risultato_anatocismo = analizza_anatocismo(
+          db,
+          { ...payload, tan_dichiarato },
+          payload.rate_reali || []
+        );
+        console.log(`  Score Anatocismo: ${risultato_anatocismo.score_anatocismo}/3 | Delta: €${risultato_anatocismo.delta_euro.toFixed(2)}`);
+      } catch (anatErr) {
+        console.warn('⚠️ Anatocismo non calcolato:', anatErr.message);
+      }
+    }
+
+    // Step 8: Hash audit
     const hash_input  = JSON.stringify({ contratto_id, tipo_contratto, capitale, tan_dichiarato, voci, timestamp: Date.now() });
     const hash_catena = crypto.createHash('sha256').update(hash_input).digest('hex');
 
@@ -107,7 +125,8 @@ async function esegui_analisi(db, payload) {
       iterazioni_irr:       irr_result.iterazioni,
       voci_analizzate,
       totale_costi_inclusi: totale_costi,
-      ha_polizza_condizionante
+      ha_polizza_condizionante,
+      anatocismo:           risultato_anatocismo
     };
 
   } catch (err) {

@@ -198,6 +198,96 @@ window.app = {
       deltaEl.innerText = (data.delta_pp > 0 ? '+' : '') + data.delta_pp.toFixed(2) + 'pp';
       deltaEl.style.color = data.delta_pp > 0 ? '#ff4d4d' : '#4dff88';
     }
+
+    // ── SEZIONE ANATOCISMO ──────────────────────────────────────────────────
+    const anatEl = document.getElementById('anatocismo-section');
+    if (anatEl && data.anatocismo && data.anatocismo.applicabile) {
+      const a = data.anatocismo;
+
+      // Score color
+      const scoreColors = { 0: '#4dff88', 1: '#ffd700', 2: '#ff8c00', 3: '#ff4d4d' };
+      const scoreColor  = scoreColors[a.score_anatocismo] || '#ffffff';
+
+      // Genera righe fattori
+      let fattoriHtml = '';
+      (a.fattori_anatocismo || []).forEach(f => {
+        fattoriHtml += `<tr>
+          <td style="padding:6px;color:#c9a227;font-weight:bold;">${f.id}</td>
+          <td style="padding:6px;">${f.nome}</td>
+          <td style="padding:6px;font-size:12px;">${f.valore_label}</td>
+          <td style="padding:6px;">${f.impatto}</td>
+        </tr>`;
+      });
+
+      anatEl.innerHTML = `
+        <div style="margin-top:20px;border:1px solid #c9a227;border-radius:6px;overflow:hidden;">
+          <div id="anatocismo-header" onclick="app.toggleAnatocismo()"
+               style="background:#1a1a1a;padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#c9a227;font-weight:bold;font-size:15px;">
+              ⚖️ Analisi Ammortamento alla Francese
+            </span>
+            <span style="color:#c9a227;" id="anatocismo-toggle">▼ Espandi</span>
+          </div>
+
+          <div id="anatocismo-body" style="display:none;padding:18px;background:#161616;">
+
+            <!-- Banner giurisprudenza SEMPRE visibile -->
+            <div style="background:#2a1a00;border:1px solid #c9a227;border-radius:4px;padding:12px;margin-bottom:16px;font-size:12px;color:#ffd700;">
+              ⚠️ <strong>ORIENTAMENTO GIURISPRUDENZIALE DIVISO</strong><br>
+              Favorevole: Cass. 2232/2020 | Contrario: Cass. <strong>SU 15130/2024</strong> (peso elevato)<br>
+              <em>${a.disclaimer}</em>
+            </div>
+
+            <!-- Score e delta -->
+            <div style="display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap;">
+              <div style="background:#1e1e1e;padding:14px 20px;border-radius:6px;border:1px solid #333;min-width:140px;text-align:center;">
+                <div style="color:#888;font-size:11px;text-transform:uppercase;">Score Anatocismo</div>
+                <div style="font-size:36px;font-weight:bold;color:${scoreColor};">${a.score_anatocismo}<span style="font-size:16px;color:#666;">/3</span></div>
+              </div>
+              <div style="background:#1e1e1e;padding:14px 20px;border-radius:6px;border:1px solid #333;min-width:160px;text-align:center;">
+                <div style="color:#888;font-size:11px;text-transform:uppercase;">Delta Stimato</div>
+                <div style="font-size:26px;font-weight:bold;color:${scoreColor};">€${a.delta_euro.toFixed(2)}</div>
+                <div style="color:#888;font-size:11px;">${a.delta_pct.toFixed(4)}% su tot. interessi</div>
+              </div>
+              <div style="background:#1e1e1e;padding:14px 20px;border-radius:6px;border:1px solid #333;flex:1;min-width:200px;">
+                <div style="color:#888;font-size:11px;text-transform:uppercase;margin-bottom:6px;">Interessi Francese vs Puro</div>
+                <div style="font-size:13px;">Francese: <strong>€${a.totale_interessi_francese.toFixed(2)}</strong></div>
+                <div style="font-size:13px;">Puro: <strong>€${a.totale_interessi_puro.toFixed(2)}</strong></div>
+              </div>
+            </div>
+
+            <!-- Fattori -->
+            <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;">
+              <thead>
+                <tr style="background:#222;">
+                  <th style="padding:8px;text-align:left;color:#c9a227;">ID</th>
+                  <th style="padding:8px;text-align:left;color:#c9a227;">Fattore</th>
+                  <th style="padding:8px;text-align:left;color:#c9a227;">Valore</th>
+                  <th style="padding:8px;text-align:left;color:#c9a227;">Impatto</th>
+                </tr>
+              </thead>
+              <tbody id="anatocismo-fattori">${fattoriHtml}</tbody>
+            </table>
+
+            <!-- Piano rate e export CSV -->
+            ${a.piano_rate && a.piano_rate.length > 0 ? `
+            <div style="margin-top:10px;">
+              <button onclick="app.exportPianoCSV()" style="
+                padding:8px 16px;background:#c9a227;color:#000;border:none;
+                cursor:pointer;font-weight:bold;border-radius:4px;font-size:12px;">
+                📊 Scarica Piano Rate (CSV)
+              </button>
+              <span style="color:#666;font-size:11px;margin-left:10px;">${a.piano_rate.length} rate ricostruite</span>
+            </div>` : ''}
+
+          </div>
+        </div>
+      `;
+      anatEl.style.display = 'block';
+    } else if (anatEl) {
+      anatEl.innerHTML = '';
+      anatEl.style.display = 'none';
+    }
   },
 
   generatePDF: async () => {
@@ -216,6 +306,40 @@ window.app = {
         alert('✅ Report PDF salvato in:\n' + result.path_file);
       } else {
         alert('❌ Errore PDF: ' + result.errore);
+      }
+    } catch (err) {
+      alert('❌ Errore: ' + err.message);
+    }
+  },
+
+  toggleAnatocismo: () => {
+    const body   = document.getElementById('anatocismo-body');
+    const toggle = document.getElementById('anatocismo-toggle');
+    if (!body) return;
+    if (body.style.display === 'none') {
+      body.style.display = 'block';
+      if (toggle) toggle.innerText = '▲ Comprimi';
+    } else {
+      body.style.display = 'none';
+      if (toggle) toggle.innerText = '▼ Espandi';
+    }
+  },
+
+  exportPianoCSV: async () => {
+    try {
+      const a = AppState.ultimaAnalisi && AppState.ultimaAnalisi.anatocismo;
+      if (!a || !a.piano_rate || a.piano_rate.length === 0) {
+        alert('⚠️ Piano rate non disponibile!');
+        return;
+      }
+      const result = await window.electronAPI.invoke('export-piano-anatocismo', {
+        piano_rate:  a.piano_rate,
+        contratto_id: AppState.contratto.contratto_id
+      });
+      if (result.successo) {
+        alert('✅ Piano rate salvato:\n' + result.path_file);
+      } else {
+        alert('❌ Errore: ' + result.errore);
       }
     } catch (err) {
       alert('❌ Errore: ' + err.message);
