@@ -133,7 +133,8 @@
       costiBody.innerHTML = '';
       if (data.voci) {
         data.voci.forEach(v => {
-          costiBody.innerHTML += `<tr><td>${v.voce}</td><td>€ ${v.importo.toFixed(2)}</td><td>${v.inclusa_teg ? 'SÌ' : 'NO'}</td><td>${v.motivazione || '-'}</td></tr>`;
+          const inclusa = v.inclusa_teg === true || v.inclusa === true;
+costiBody.innerHTML += `<tr><td>${v.voce}</td><td>€ ${v.importo.toFixed(2)}</td><td>${inclusa ? 'SÌ' : 'NO'}</td><td>${v.motivazione || '-'}</td></tr>`;
         });
       }
 
