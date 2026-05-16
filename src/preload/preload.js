@@ -6,7 +6,7 @@ const CANALI_VALIDI = [
   'genera-report', 'export-csv', 'export-piano-anatocismo',
   'backup-db', 'get-config', 'controlla-aggiornamenti-soglie',
   // Sessione E — Parser LLM
-  'carica-documento', 'apri-dialog-file', 'salva-config-llm', 'get-config-llm'
+  'carica-documento', 'apri-dialog-file', 'salva-config-llm', 'get-config-llm', 'elimina-analisi'
 ];
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -34,6 +34,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   salvaConfigLLM: (cfg) => ipcRenderer.invoke('salva-config-llm', cfg),
 
   // Legge provider LLM e se la key è presente (NON la key stessa)
-  getConfigLLM: () => ipcRenderer.invoke('get-config-llm')
+  getConfigLLM: () => ipcRenderer.invoke('get-config-llm', 'elimina-analisi')
 });
 

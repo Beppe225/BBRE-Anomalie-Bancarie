@@ -219,6 +219,21 @@ function setupIpcHandlers() {
     }
   });
 
+  // ── ELIMINA ANALISI ─────────────────────────────────────────────────────
+
+  ipcMain.handle('elimina-analisi', async (event, analisi_id) => {
+    try {
+      const db = getDb();
+      db.run(`DELETE FROM audit_analisi WHERE analisi_id = ?`, [analisi_id]);
+      global.dbManager.save();
+      console.log('🗑️  Pratica eliminata:', analisi_id);
+      return { successo: true };
+    } catch (err) {
+      console.error('❌ Errore elimina-analisi:', err.message);
+      return { successo: false, errore: err.message };
+    }
+  });
+
   // ── CARICA DOCUMENTO (Sessione E — Parser LLM) ───────────────────────────
   // Riceve il path del file scelto dall'utente, lancia il parser LLM e
   // restituisce i dati pronti per pre-compilare Step 1.
@@ -316,7 +331,7 @@ function setupIpcHandlers() {
     }
   });
 
-  console.log('✅ IPC Handlers registrati (14 canali)');
+  console.log('✅ IPC Handlers registrati (15 canali)');
 }
 
 module.exports = { setupIpcHandlers };

@@ -386,16 +386,20 @@ window.app = {
         const id     = p.analisi_id || '—';
 
         return `
-          <tr style="border-bottom:1px solid #222; cursor:pointer;" onclick="app.apriPratica('${id}')"
-              onmouseover="this.style.background='#1e1e1e'" onmouseout="this.style.background='transparent'">
-            <td style="padding:10px 8px; color:#c9a227; font-size:12px;">${data}</td>
-            <td style="padding:10px 8px; font-size:12px;">${id.substring(0,16)}…</td>
-            <td style="padding:10px 8px; font-size:12px;">${tipo}</td>
-            <td style="padding:10px 8px; font-size:12px;">${cap}</td>
-            <td style="padding:10px 8px; font-size:12px;">${teg}</td>
-            <td style="padding:10px 8px; font-size:12px;">${soglia}</td>
-            <td style="padding:10px 8px; font-size:13px; text-align:center;">${score}</td>
-            <td style="padding:10px 8px; text-align:center;">${usura}</td>
+          <tr style="border-bottom:1px solid #222;" id="row-${id}">
+            <td style="padding:10px 8px; color:#c9a227; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${data}</td>
+            <td style="padding:10px 8px; font-size:11px; color:#888; cursor:pointer;" onclick="app.apriPratica('${id}')">${id.substring(0,14)}…</td>
+            <td style="padding:10px 8px; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${tipo}</td>
+            <td style="padding:10px 8px; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${cap}</td>
+            <td style="padding:10px 8px; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${teg}</td>
+            <td style="padding:10px 8px; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${soglia}</td>
+            <td style="padding:10px 8px; font-size:13px; text-align:center; cursor:pointer;" onclick="app.apriPratica('${id}')">${score}</td>
+            <td style="padding:10px 8px; text-align:center; cursor:pointer;" onclick="app.apriPratica('${id}')">${usura}</td>
+            <td style="padding:6px 8px; text-align:center;">
+              <button onclick="app.eliminaPratica('${id}')" title="Elimina pratica"
+                style="background:none; border:1px solid #444; color:#ff4d4d; cursor:pointer;
+                       font-size:14px; border-radius:3px; padding:2px 8px; line-height:1;">✕</button>
+            </td>
           </tr>`;
       }).join('');
 
@@ -414,6 +418,7 @@ window.app = {
                 <th style="padding:10px 8px; text-align:left; color:#c9a227;">Soglia</th>
                 <th style="padding:10px 8px; text-align:center; color:#c9a227;">Score</th>
                 <th style="padding:10px 8px; text-align:center; color:#c9a227;">Usura</th>
+                <th style="padding:10px 8px; text-align:center; color:#c9a227;">Azioni</th>
               </tr>
             </thead>
             <tbody>${righe}</tbody>
@@ -450,13 +455,20 @@ window.app = {
       };
 
       // Ricostruisce l'oggetto risultato da audit_analisi
+      // Normalizza i nomi al formato atteso da showResults (teg, soglia, score)
+      const fattoriParsed    = p.fattori_json    ? JSON.parse(p.fattori_json)    : [];
+      const anatocismoParsed = p.anatocismo_json ? JSON.parse(p.anatocismo_json) : null;
       AppState.ultimaAnalisi = {
-        teg:            parseFloat(p.teg_reale),
-        soglia_usura:   parseFloat(p.soglia_usura),
-        score_finale:   p.score_finale,
-        usura_rilevata: p.usura_rilevata,
-        fattori:        p.fattori_json ? JSON.parse(p.fattori_json) : [],
-        anatocismo:     p.anatocismo_json ? JSON.parse(p.anatocismo_json) : null
+        teg:               parseFloat(p.teg_reale)   || 0,
+        soglia:            parseFloat(p.soglia_usura) || 0,
+        score:             parseInt(p.score_finale)   || 0,
+        label:             ['Nessuna anomalia','Zona grigia','Anomalia possibile','Anomalia probabile','Caso forte per contenzioso'][parseInt(p.score_finale)||0] || '',
+        affidabilita:      parseInt(p.score_finale) <= 1 ? 'alta' : parseInt(p.score_finale) <= 2 ? 'media' : 'bassa',
+        usura_rilevata:    p.usura_rilevata,
+        delta_pp:          p.teg_reale && p.soglia_usura ? parseFloat(((p.teg_reale - p.soglia_usura)*100).toFixed(2)) : null,
+        fattori:           fattoriParsed,
+        anatocismo:        anatocismoParsed,
+        orientamento_giurisp: null
       };
       AppState.costi = p.voci_json ? JSON.parse(p.voci_json) : [];
 
@@ -478,6 +490,29 @@ window.app = {
       else alert('❌ ' + r.errore);
     } catch (err) {
       alert('❌ ' + err.message);
+    }
+  },
+
+  eliminaPratica: async (analisiId) => {
+    if (!confirm(`Eliminare definitivamente la pratica ${analisiId.substring(0,20)}…?\nL'operazione non è reversibile.`)) return;
+    try {
+      const result = await window.electronAPI.invoke('elimina-analisi', analisiId);
+      if (!result.successo) throw new Error(result.errore);
+      // Rimuovi la riga dalla tabella senza ricaricare tutto
+      const row = document.getElementById('row-' + analisiId);
+      if (row) {
+        row.style.transition = 'opacity 0.3s';
+        row.style.opacity = '0';
+        setTimeout(() => row.remove(), 300);
+      }
+      // Aggiorna contatore
+      const p = document.querySelector('#step-archivio p');
+      if (p) {
+        const rows = document.querySelectorAll('#step-archivio tbody tr').length - 1;
+        p.textContent = `${rows} pratich${rows===1?'a':'e'} trovata${rows===1?'':'e'} — clicca una riga per riaprirla`;
+      }
+    } catch (err) {
+      alert('❌ Errore eliminazione: ' + err.message);
     }
   },
 
