@@ -787,7 +787,27 @@ window.app = {
   }
 };
 
+// ── Widget Tassi di Riferimento ────────────────────────────────────────────
+async function aggiornaWidgetMercato() {
+  try {
+    const r = await window.electronAPI.invoke('get-market-data');
+    if (!r.successo) return;
+    const d = r.dati;
+    const euriborEl = document.getElementById('euribor-val');
+    const tegmEl    = document.getElementById('tegm-val');
+    if (euriborEl) euriborEl.innerText = d.euribor_3m ? d.euribor_3m.toFixed(3) + '%' : '--%';
+    if (tegmEl)    tegmEl.innerText    = d.tegm_corrente ? d.tegm_corrente.toFixed(2) + '%' : '--%';
+  } catch (_) {}
+}
+
+// Esponi sul namespace app
+window.app = window.app || {};
+Object.assign(window.app, { aggiornaWidgetMercato });
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ BBRE UI pronta.');
   app.renderCosts();
+  app.aggiornaWidgetMercato();
+  // Aggiorna ogni 5 minuti
+  setInterval(app.aggiornaWidgetMercato, 5 * 60 * 1000);
 });

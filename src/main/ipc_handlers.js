@@ -219,6 +219,18 @@ function setupIpcHandlers() {
     }
   });
 
+  // ── DATI MERCATO (widget sidebar) ────────────────────────────────────────
+
+  ipcMain.handle('get-market-data', async () => {
+    try {
+      const { getMarketData } = require('../market/fetcher');
+      const data = await getMarketData();
+      return { successo: true, dati: data };
+    } catch (err) {
+      return { successo: false, errore: err.message };
+    }
+  });
+
   // ── ELIMINA ANALISI ─────────────────────────────────────────────────────
 
   ipcMain.handle('elimina-analisi', async (event, analisi_id) => {
