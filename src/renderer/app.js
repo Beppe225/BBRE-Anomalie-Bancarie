@@ -791,13 +791,27 @@ window.app = {
 async function aggiornaWidgetMercato() {
   try {
     const r = await window.electronAPI.invoke('get-market-data');
-    if (!r.successo) return;
+    if (!r || !r.successo) return;
     const d = r.dati;
-    const euriborEl = document.getElementById('euribor-val');
-    const tegmEl    = document.getElementById('tegm-val');
-    if (euriborEl) euriborEl.innerText = d.euribor_3m ? d.euribor_3m.toFixed(3) + '%' : '--%';
-    if (tegmEl)    tegmEl.innerText    = d.tegm_corrente ? d.tegm_corrente.toFixed(2) + '%' : '--%';
-  } catch (_) {}
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+
+    set('euribor-val',    d.euribor_3m    != null ? d.euribor_3m.toFixed(3) + '%'    : '--%');
+    set('euribor-periodo',d.euribor_periodo ? '(' + d.euribor_periodo + ' · ' + (d.euribor_fonte||'') + ')' : '');
+    set('tegm-val',       d.tegm_corrente  != null ? d.tegm_corrente.toFixed(2) + '%'  : '--%');
+    set('tegm-periodo',   d.tegm_periodo   ? '(' + d.tegm_periodo + ' · ' + (d.tegm_fonte||'') + ')' : '');
+    set('soglia-val',     d.soglia_corrente != null ? d.soglia_corrente.toFixed(4) + '%' : '--%');
+
+    // Timestamp ultimo aggiornamento
+    if (d.timestamp) {
+      const dt = new Date(d.timestamp);
+      const ora = dt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+      const gg  = dt.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+      set('widget-aggiornato', d.fromCache ? '' : '↻ aggiornato ' + gg + ' ' + ora);
+    }
+  } catch (err) {
+    console.warn('Widget mercato:', err.message);
+  }
 }
 
 // Esponi sul namespace app
