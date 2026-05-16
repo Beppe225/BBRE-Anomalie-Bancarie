@@ -1,28 +1,37 @@
-﻿{
-  "appId": "com.bbre.anomalie",
-  "productName": "BBRE Anomalie Bancarie",
-  "directories": {
-    "output": "dist"
-  },
-  "files": [
-    "src/**/*",
-    "package.json",
-    "data/**/*",
-    "node_modules/sql.js/**/*",
-    "node_modules/xlsx/**/*",
-    "node_modules/pdf-lib/**/*",
-    "node_modules/node-fetch/**/*",
-    "node_modules/electron/**/*"
-  ],
-  "win": {
-    "target": "nsis"
-  },
-  "mac": {
-    "target": "dmg"
-  },
-  "asar": true,
-  "asarUnpack": [
-    "node_modules/sql.js/**/*",
-    "node_modules/better-sqlite3/**/*"
-  ]
-}
+appId: com.bbre.anomalie
+productName: BBRE Anomalie Bancarie
+executableName: bbre-anomalie
+
+directories:
+  output: dist
+
+files:
+  - src/**/*
+  - package.json
+  - data/**/*
+  - node_modules/**/*
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: BBRE Anomalie Bancarie
+
+asar: true
+asarUnpack:
+  - node_modules/sql.js/**/*
+  - node_modules/pdf-parse/**/*
+
+publish:
+  provider: github
+  owner: Beppe225
+  repo: BBRE-Anomalie-Bancarie
+  private: false
+  releaseType: release

@@ -641,6 +641,26 @@ window.app = {
           OpenAI key → <a href="https://platform.openai.com/api-keys" style="color:#c9a227;">platform.openai.com</a>
         </p>
 
+        <!-- Sezione aggiornamenti -->
+        <div style="border-top:1px solid #333; padding-top:16px; margin-bottom:20px;">
+          <div style="color:#c9a227; font-size:13px; font-weight:bold; margin-bottom:10px;">
+            🔄 Aggiornamenti App
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div>
+              <span style="color:#888; font-size:12px;">Versione installata: </span>
+              <span id="settings-versione" style="color:#fff; font-size:12px; font-weight:bold;">—</span>
+            </div>
+            <button id="btn-check-update" type="button"
+              onclick="app.controllaAggiornamenti()"
+              style="padding:7px 14px; background:#333; color:#fff; border:1px solid #555;
+                     cursor:pointer; font-size:12px; border-radius:4px;">
+              🔍 Controlla aggiornamenti
+            </button>
+          </div>
+          <div id="update-msg" style="margin-top:8px; font-size:12px; color:#aaa; min-height:16px;"></div>
+        </div>
+
         <!-- Bottoni -->
         <div style="display:flex; gap:10px; justify-content:flex-end;">
           <button id="btn-cancel-settings" style="padding:10px 20px; background:#333;
@@ -669,6 +689,13 @@ window.app = {
       const api_key  = document.getElementById('settings-apikey').value.trim();
       const msgEl    = document.getElementById('settings-msg');
 
+      // Carica versione app
+      try {
+        const vr = await window.electronAPI.invoke('get-app-version');
+        const verEl = document.getElementById('settings-versione');
+        if (verEl && vr) verEl.innerText = 'v' + (vr.versione || '—') + (vr.isPackaged ? '' : ' (dev)');
+      } catch(_) {}
+
       // Se il campo è vuoto e la key era già presente, non sovrascrivere
       const payload = { provider };
       if (api_key !== '') payload.api_key = api_key;
@@ -693,7 +720,30 @@ window.app = {
     };
   },
 
-  // ── CARICA DOCUMENTO (Sessione E) ─────────────────────────────────────────
+  // ── CONTROLLA AGGIORNAMENTI ──────────────────────────────────────────────────
+  controllaAggiornamenti: async () => {
+    const btn   = document.getElementById('btn-check-update');
+    const msgEl = document.getElementById('update-msg');
+    if (btn) { btn.disabled = true; btn.innerText = '⏳ Controllo...'; }
+    if (msgEl) { msgEl.style.color = '#aaa'; msgEl.innerText = 'Connessione a GitHub...'; }
+
+    try {
+      const r = await window.electronAPI.invoke('controlla-aggiornamenti-manuali');
+      if (!r.successo) {
+        if (msgEl) { msgEl.style.color = '#888'; msgEl.innerText = r.errore; }
+      } else if (r.versione) {
+        if (msgEl) { msgEl.style.color = '#c9a227'; msgEl.innerText = `✅ Nuova versione disponibile: v${r.versione}. Conferma nella finestra di dialogo.`; }
+      } else {
+        if (msgEl) { msgEl.style.color = '#4caf50'; msgEl.innerText = "\u2705 App gi\u00e0 aggiornata all'ultima versione."; }
+      }
+    } catch (err) {
+      if (msgEl) { msgEl.style.color = '#ff4d4d'; msgEl.innerText = '❌ ' + err.message; }
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerText = '🔍 Controlla aggiornamenti'; }
+    }
+  },
+
+  // ── CARICA DOCUMENTO (Sessione E) ─────────────────────────────────────────────
   caricaDocumentoParser: async () => {
     // Stato feedback visivo
     const btnEl = document.getElementById('btn-carica-doc');
