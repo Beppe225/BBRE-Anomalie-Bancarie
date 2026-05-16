@@ -1,4 +1,4 @@
-﻿const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
 // Canali IPC autorizzati (whitelist sicurezza)
 const CANALI_VALIDI = [

@@ -1,4 +1,4 @@
-﻿
+
 /**
  * regole_engine.js - Motore regole da DB
  * FASE 2: Determina inclusione/esclusione voci costo

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * score_engine.js - Calcolo score rischio 0-4
  * Fix v1.1: delta calcolato in punti percentuali assoluti
  */

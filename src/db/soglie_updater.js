@@ -1,4 +1,4 @@
-﻿const fetch = require('node-fetch');  // ✅ node-fetch@2 funziona con require()
+const fetch = require('node-fetch');  // ✅ node-fetch@2 funziona con require()
 const XLSX = require('xlsx');
 const crypto = require('crypto');
 const fs = require('fs');

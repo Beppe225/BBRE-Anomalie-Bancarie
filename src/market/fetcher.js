@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 // Per fetch reali (già installato in Fase 0 come node-fetch@2 o globale Node 18+)
 // const fetch = require('node-fetch'); 

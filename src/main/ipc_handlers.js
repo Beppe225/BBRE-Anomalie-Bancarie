@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ipc_handlers.js - Handler IPC completi
  * Fix v1.1: aggiunti tutti gli handler mancanti
  */

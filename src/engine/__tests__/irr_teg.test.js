@@ -1,4 +1,4 @@
-﻿/**
+/**
  * irr_teg.test.js - Test engine calcolo IRR/TEG
  * Fix v1.1: rimossa firma errata con array date
  */

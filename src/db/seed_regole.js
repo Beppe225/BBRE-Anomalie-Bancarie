@@ -1,4 +1,4 @@
-﻿/**
+/**
  * seed_regole.js - Popola la tabella delle regole normative
  * Utilizza INSERT OR IGNORE per evitare crash su riavvii multipli
  */

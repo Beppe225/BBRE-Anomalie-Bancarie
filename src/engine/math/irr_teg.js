@@ -1,4 +1,4 @@
-﻿/**
+/**
  * irr_teg.js - Calcolo IRR conforme TEG italiano
  * FASE 2: Newton-Raphson con fallback bisezione
  */

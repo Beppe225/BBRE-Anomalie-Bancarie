@@ -1,4 +1,4 @@
-﻿/**
+/**
  * soglia_calculator.js - Recupero soglie usura da DB
  * FASE 2: Query robuste per sql.js
  */

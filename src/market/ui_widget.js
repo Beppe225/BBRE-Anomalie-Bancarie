@@ -1,4 +1,4 @@
-﻿/**
+/**
  * BBRE Market Widget
  * Gestisce la visualizzazione nella sidebar destra
  */

@@ -1,4 +1,4 @@
-﻿// Stato Globale
+// Stato Globale
 const AppState = {
   step: 1,
   contratto: {},

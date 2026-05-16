@@ -1,4 +1,4 @@
-﻿c/**
+/**
  * orchestrator.js - Coordinatore analisi completa v1.2
  * Fix: polizza_condizionante, soglia normalizzata, durata_mesi
  */

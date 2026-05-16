@@ -1,4 +1,4 @@
-﻿/**
+/**
  * seed_soglie.js - Soglie usura storiche 2005-2026
  * Copertura trimestrale completa per mutuo_ipotecario, credito_consumo, cqs
  * Valori basati su trend storici Banca d'Italia
