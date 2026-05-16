@@ -1,7 +1,7 @@
 /**
- * fetcher.js — Dati mercato real-time
- * EURIBOR 3M: BCE Statistical Data Warehouse (API pubblica, no key)
- * TEGM:       DB interno BBRE (soglie_usura più recenti)
+ * fetcher.js — Dati mercato
+ * TEGM/Soglia: DB interno (sempre disponibile, immediato)
+ * EURIBOR 3M:  BCE SDW API (tenta fetch, fallback a stima da soglie DB)
  */
 
 'use strict';
@@ -12,19 +12,20 @@ const TTL_MS = 4 * 60 * 60 * 1000; // cache 4 ore
 
 let cache = { data: null, timestamp: 0 };
 
-// ── HTTP GET nativo Node (niente node-fetch, niente dipendenze) ────────────────
-function httpGet(url, timeoutMs = 10000) {
+// ── HTTP GET nativo Node ──────────────────────────────────────────────────────
+function httpGet(url, timeoutMs = 12000) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, { timeout: timeoutMs }, (res) => {
+      // Segui redirect
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return httpGet(res.headers.location, timeoutMs).then(resolve).catch(reject);
+      }
       let body = '';
       res.setEncoding('utf8');
       res.on('data', chunk => body += chunk);
       res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(body);
-        } else {
-          reject(new Error(`HTTP ${res.statusCode}`));
-        }
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(body);
+        else reject(new Error(`HTTP ${res.statusCode}`));
       });
     });
     req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
@@ -32,33 +33,8 @@ function httpGet(url, timeoutMs = 10000) {
   });
 }
 
-// ── EURIBOR 3M da BCE SDW ────────────────────────────────────────────────────
-async function fetchEuribor3M() {
-  const url = 'https://data-api.ecb.europa.eu/service/data/FM/M.U2.EUR.RT.MM.EURIBOR3MD_.HSTA?lastNObservations=1&format=csvdata';
-  try {
-    const text  = await httpGet(url, 12000);
-    const lines = text.trim().split('\n');
-    if (lines.length < 2) throw new Error('Risposta vuota');
-
-    const headers = lines[0].split(',').map(h => h.trim().replace(/\r/g,''));
-    const values  = lines[1].split(',').map(v => v.trim().replace(/\r/g,''));
-    const row     = {};
-    headers.forEach((h, i) => row[h] = values[i] || '');
-
-    const valore  = parseFloat(row['OBS_VALUE']);
-    const periodo = row['TIME_PERIOD'] || '';
-    if (isNaN(valore)) throw new Error('OBS_VALUE non parsabile: ' + row['OBS_VALUE']);
-
-    console.log('✅ EURIBOR 3M BCE:', valore, '%', periodo);
-    return { valore, periodo, fonte: 'BCE SDW' };
-  } catch (err) {
-    console.warn('⚠️  Fetch EURIBOR BCE fallito:', err.message);
-    return null;
-  }
-}
-
-// ── TEGM e Soglia dal DB interno ─────────────────────────────────────────────
-function getTEGMdaDB() {
+// ── TEGM e Soglia dal DB (fonte primaria, sempre disponibile) ─────────────────
+function getDatiDB() {
   try {
     if (!global.dbManager) return null;
     const db = global.dbManager.getDb();
@@ -74,17 +50,47 @@ function getTEGMdaDB() {
     if (!res.length || !res[0].values.length) return null;
 
     const [tegm, soglia, anno, trim] = res[0].values[0];
-    console.log('✅ TEGM da DB:', tegm, '%  Soglia:', soglia, '%  Periodo:', anno, 'T'+trim);
     return {
       tegm_mutuo:   parseFloat(tegm),
       soglia_mutuo: parseFloat(soglia),
       periodo:      `${anno} T${trim}`,
-      fonte:        "Banca d'Italia (DB BBRE)"
+      fonte:        "Banca d'Italia"
     };
   } catch (err) {
-    console.warn('⚠️  Lettura TEGM da DB:', err.message);
+    console.warn('⚠️  DB mercato:', err.message);
     return null;
   }
+}
+
+// ── EURIBOR 3M da BCE (tenta, non blocca) ────────────────────────────────────
+async function fetchEuribor3M() {
+  // Due endpoint BCE: nuovo e vecchio SDW (fallback)
+  const urls = [
+    'https://data-api.ecb.europa.eu/service/data/FM/M.U2.EUR.RT.MM.EURIBOR3MD_.HSTA?lastNObservations=1&format=csvdata',
+    'https://sdw-wsrest.ecb.europa.eu/service/data/FM/M.U2.EUR.RT.MM.EURIBOR3MD_.HSTA?lastNObservations=1&format=csvdata'
+  ];
+  for (const url of urls) {
+  try {
+    const text  = await httpGet(url, 8000);
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) throw new Error('Risposta vuota');
+
+    const headers = lines[0].split(',').map(h => h.trim().replace(/\r/g, ''));
+    const values  = lines[1].split(',').map(v => v.trim().replace(/\r/g, ''));
+    const row     = {};
+    headers.forEach((h, i) => row[h] = values[i] || '');
+
+    const valore = parseFloat(row['OBS_VALUE']);
+    if (isNaN(valore)) throw new Error('Valore non valido');
+
+    console.log('✅ EURIBOR BCE:', valore, '%', row['TIME_PERIOD'], '|', url.includes('sdw-wsrest') ? 'legacy' : 'new');
+    return { valore, periodo: row['TIME_PERIOD'] || '', fonte: 'BCE SDW' };
+  } catch (err) {
+    console.warn('⚠️  Endpoint fallito:', url.substring(0,50), err.message);
+    // continua con prossimo endpoint
+  }
+  } // fine for
+  return null;
 }
 
 // ── ENTRY POINT ───────────────────────────────────────────────────────────────
@@ -97,26 +103,46 @@ async function getMarketData() {
 
   console.log('🌐 Aggiornamento dati mercato...');
 
-  // Lancia EURIBOR e TEGM in parallelo
-  const [euribor, tegmDB] = await Promise.all([
-    fetchEuribor3M(),
-    Promise.resolve(getTEGMdaDB())
-  ]);
+  // DB è immediato — non aspettiamo BCE per mostrare qualcosa
+  const db = getDatiDB();
+
+  // BCE in parallelo con timeout generoso
+  const euribor = await fetchEuribor3M();
+
+  // Se BCE non risponde, stima EURIBOR da spread tipico sul TEGM
+  // (approssimazione: EURIBOR ≈ TEGM mutui - 3.5pp spread medio storico)
+  let euriborVal    = euribor ? euribor.valore  : null;
+  let euriborPer    = euribor ? euribor.periodo : null;
+  let euriborFonte  = euribor ? euribor.fonte   : null;
+
+  if (!euribor && db) {
+    // Fallback: stima da spread storico Euribor/TEGM
+    euriborVal   = Math.max(0, parseFloat((db.tegm_mutuo - 3.5).toFixed(3)));
+    euriborPer   = db.periodo;
+    euriborFonte = 'Stima (BCE non raggiungibile)';
+    console.log('📊 EURIBOR stimato dal DB:', euriborVal, '%');
+  }
 
   const data = {
-    euribor_3m:       euribor ? euribor.valore      : null,
-    euribor_periodo:  euribor ? euribor.periodo      : null,
-    euribor_fonte:    euribor ? euribor.fonte        : null,
-    tegm_corrente:    tegmDB  ? tegmDB.tegm_mutuo    : null,
-    soglia_corrente:  tegmDB  ? tegmDB.soglia_mutuo  : null,
-    tegm_periodo:     tegmDB  ? tegmDB.periodo       : null,
-    tegm_fonte:       tegmDB  ? tegmDB.fonte         : null,
-    timestamp:        new Date().toISOString(),
-    aggiornato:       !!(euribor || tegmDB)
+    euribor_3m:      euriborVal,
+    euribor_periodo: euriborPer,
+    euribor_fonte:   euriborFonte,
+    tegm_corrente:   db ? db.tegm_mutuo   : null,
+    soglia_corrente: db ? db.soglia_mutuo : null,
+    tegm_periodo:    db ? db.periodo      : null,
+    tegm_fonte:      db ? db.fonte        : null,
+    timestamp:       new Date().toISOString(),
+    aggiornato:      !!(euribor || db)
   };
 
   cache.data      = data;
   cache.timestamp = now;
+
+  console.log('✅ Widget dati:', JSON.stringify({
+    euribor: data.euribor_3m,
+    tegm: data.tegm_corrente,
+    soglia: data.soglia_corrente
+  }));
 
   return { ...data, fromCache: false };
 }
