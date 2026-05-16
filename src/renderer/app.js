@@ -8,7 +8,16 @@ const AppState = {
 // Funzioni esposte al renderer
 window.app = {
   nav: (page) => {
-    if (page === 'nuova') app.goToStep(1);
+    if (page === 'nuova') {
+      app.resetForm();
+    } else if (page === 'archivio') {
+      app.loadArchive();
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      const s = document.getElementById('step-archivio');
+      if (s) s.classList.add('active');
+    } else if (page === 'impostazioni') {
+      app.loadSettings();
+    }
   },
 
   goToStep: (target) => {
@@ -346,7 +355,179 @@ window.app = {
     }
   },
 
-  loadArchive: () => { console.log('📂 Carico Archivio'); },
+  loadArchive: async () => {
+    console.log('📂 Carico Archivio');
+    const container = document.getElementById('step-archivio');
+    if (!container) return;
+
+    container.innerHTML = '<h2>📂 Archivio Pratiche</h2><p style="color:#666;">⏳ Caricamento...</p>';
+
+    try {
+      const result = await window.electronAPI.invoke('lista-analisi');
+      if (!result.successo) throw new Error(result.errore);
+
+      const pratiche = result.dati;
+
+      if (!pratiche || pratiche.length === 0) {
+        container.innerHTML = `
+          <h2>📂 Archivio Pratiche</h2>
+          <p style="color:#666; margin-top:20px;">Nessuna pratica salvata. Esegui una nuova analisi.</p>`;
+        return;
+      }
+
+      const righe = pratiche.map(p => {
+        const data  = p.timestamp_analisi ? p.timestamp_analisi.substring(0,10) : '—';
+        const teg   = p.teg_reale != null ? (parseFloat(p.teg_reale)*100).toFixed(4)+'%' : '—';
+        const soglia = p.soglia_usura != null ? (parseFloat(p.soglia_usura)*100).toFixed(4)+'%' : '—';
+        const score  = p.score_finale != null ? p.score_finale : '—';
+        const usura  = p.usura_rilevata ? '<span style="color:#ff4d4d;font-weight:bold;">⚠️ SÌ</span>' : '<span style="color:#4caf50;">NO</span>';
+        const tipo   = (p.tipo_contratto || '—').replace('_', ' ').toUpperCase();
+        const cap    = p.capitale != null ? '€ ' + parseFloat(p.capitale).toLocaleString('it-IT') : '—';
+        const id     = p.analisi_id || '—';
+
+        return `
+          <tr style="border-bottom:1px solid #222; cursor:pointer;" onclick="app.apriPratica('${id}')"
+              onmouseover="this.style.background='#1e1e1e'" onmouseout="this.style.background='transparent'">
+            <td style="padding:10px 8px; color:#c9a227; font-size:12px;">${data}</td>
+            <td style="padding:10px 8px; font-size:12px;">${id.substring(0,16)}…</td>
+            <td style="padding:10px 8px; font-size:12px;">${tipo}</td>
+            <td style="padding:10px 8px; font-size:12px;">${cap}</td>
+            <td style="padding:10px 8px; font-size:12px;">${teg}</td>
+            <td style="padding:10px 8px; font-size:12px;">${soglia}</td>
+            <td style="padding:10px 8px; font-size:13px; text-align:center;">${score}</td>
+            <td style="padding:10px 8px; text-align:center;">${usura}</td>
+          </tr>`;
+      }).join('');
+
+      container.innerHTML = `
+        <h2>📂 Archivio Pratiche</h2>
+        <p style="color:#666; font-size:12px; margin-bottom:16px;">${pratiche.length} pratich${pratiche.length===1?'a':'e'} trovata${pratiche.length===1?'':'e'} — clicca una riga per riaprirla</p>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:#1a1a1a; border-bottom:2px solid #c9a227;">
+                <th style="padding:10px 8px; text-align:left; color:#c9a227;">Data</th>
+                <th style="padding:10px 8px; text-align:left; color:#c9a227;">ID Pratica</th>
+                <th style="padding:10px 8px; text-align:left; color:#c9a227;">Tipo</th>
+                <th style="padding:10px 8px; text-align:left; color:#c9a227;">Capitale</th>
+                <th style="padding:10px 8px; text-align:left; color:#c9a227;">TAEG Reale</th>
+                <th style="padding:10px 8px; text-align:left; color:#c9a227;">Soglia</th>
+                <th style="padding:10px 8px; text-align:center; color:#c9a227;">Score</th>
+                <th style="padding:10px 8px; text-align:center; color:#c9a227;">Usura</th>
+              </tr>
+            </thead>
+            <tbody>${righe}</tbody>
+          </table>
+        </div>
+        <div style="margin-top:16px; display:flex; gap:10px;">
+          <button onclick="app.nav('nuova')" style="padding:10px 20px; background:#c9a227; color:#000; border:none; cursor:pointer; font-weight:bold; border-radius:4px;">
+            + Nuova Pratica
+          </button>
+          <button onclick="app.exportCSVArchivio()" style="padding:10px 20px; background:#333; color:#fff; border:1px solid #555; cursor:pointer; border-radius:4px;">
+            📊 Esporta CSV
+          </button>
+        </div>`;
+    } catch (err) {
+      container.innerHTML = `<h2>📂 Archivio Pratiche</h2><p style="color:#ff4d4d;">❌ Errore: ${err.message}</p>`;
+    }
+  },
+
+  // Riapre una pratica dall'archivio mostrando i risultati
+  apriPratica: async (analisiId) => {
+    try {
+      const result = await window.electronAPI.invoke('get-analisi', analisiId);
+      if (!result.successo) throw new Error(result.errore);
+
+      const p = result.dati;
+      // Ricostruisce AppState dal dato salvato
+      AppState.contratto = {
+        contratto_id:   p.analisi_id,
+        tipo_contratto: p.tipo_contratto,
+        data_stipula:   p.data_stipula,
+        capitale:       parseFloat(p.capitale),
+        tan_dichiarato: parseFloat(p.tan_dichiarato),
+        durata_mesi:    parseInt(p.durata_mesi) || 84
+      };
+
+      // Ricostruisce l'oggetto risultato da audit_analisi
+      AppState.ultimaAnalisi = {
+        teg:            parseFloat(p.teg_reale),
+        soglia_usura:   parseFloat(p.soglia_usura),
+        score_finale:   p.score_finale,
+        usura_rilevata: p.usura_rilevata,
+        fattori:        p.fattori_json ? JSON.parse(p.fattori_json) : [],
+        anatocismo:     p.anatocismo_json ? JSON.parse(p.anatocismo_json) : null
+      };
+      AppState.costi = p.voci_json ? JSON.parse(p.voci_json) : [];
+
+      // Naviga a Step 3 e mostra risultati
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      const s3 = document.getElementById('step-3');
+      if (s3) { s3.classList.add('active'); AppState.step = 3; }
+      app.showResults(AppState.ultimaAnalisi);
+
+    } catch (err) {
+      alert('❌ Errore apertura pratica: ' + err.message);
+    }
+  },
+
+  exportCSVArchivio: async () => {
+    try {
+      const r = await window.electronAPI.invoke('export-csv');
+      if (r.successo) alert('✅ CSV salvato:\n' + r.path_file);
+      else alert('❌ ' + r.errore);
+    } catch (err) {
+      alert('❌ ' + err.message);
+    }
+  },
+
+  // Reset completo form per nuova pratica
+  resetForm: () => {
+    // Reset stato globale
+    AppState.step      = 1;
+    AppState.contratto = {};
+    AppState.costi     = [];
+    AppState.ultimaAnalisi = null;
+
+    // Reset campi Step 1
+    const fields = ['tipo', 'data', 'capitale', 'tan', 'durata'];
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      else el.value = '';
+    });
+
+    // Reset feedback parser
+    const msgEl = document.getElementById('parser-msg');
+    if (msgEl) msgEl.innerText = '';
+
+    // Reset pulsante carica (nel caso fosse rimasto disabilitato)
+    const btnEl = document.getElementById('btn-carica-doc');
+    if (btnEl) { btnEl.disabled = false; btnEl.innerText = '📄 Carica Documento'; }
+
+    // Reset Step 3 risultati
+    ['res-tan','res-teg','res-soglia','res-score','res-delta'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerText = '-';
+    });
+    const fl = document.getElementById('factors-list');
+    if (fl) fl.innerHTML = '';
+
+    // Nascondi sezione anatocismo se presente
+    const anatEl = document.getElementById('anatocismo-section');
+    if (anatEl) { anatEl.innerHTML = ''; anatEl.style.display = 'none'; }
+
+    // Vai a Step 1
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    const s1 = document.getElementById('step-1');
+    if (s1) s1.classList.add('active');
+
+    // Re-render lista costi (vuota)
+    app.renderCosts();
+
+    console.log('✅ Form resettato per nuova pratica');
+  },
 
   // ── SETTINGS — Parser LLM (Sessione E) ────────────────────────────────────
   loadSettings: async () => {

@@ -97,14 +97,44 @@ async function esegui_analisi(db, payload) {
     const hash_input  = JSON.stringify({ contratto_id, tipo_contratto, capitale, tan_dichiarato, voci, timestamp: Date.now() });
     const hash_catena = crypto.createHash('sha256').update(hash_input).digest('hex');
 
-    // Step 8: Salva audit
+    // Step 8: Salva audit con dati completi per archivio
     try {
-      db.run(`
-        INSERT OR REPLACE INTO audit_analisi
-        (analisi_id, contratto_id, hash_catena, versione_engine, dataset_soglie, timestamp_analisi)
-        VALUES ('${contratto_id}', '${contratto_id}', '${hash_catena}', '1.2.0', 'seed_v2', datetime('now'))
-      `);
-      console.log('  ✅ Audit salvato');
+      // Migrazione non-destructive: aggiungi colonne archivio se mancanti
+      const colCheck = db.exec("PRAGMA table_info(audit_analisi)");
+      const colNames = colCheck.length > 0 ? colCheck[0].values.map(r => r[1]) : [];
+      const nuoveCols = [
+        ['tipo_contratto',  'TEXT'],  ['data_stipula',    'TEXT'],
+        ['capitale',        'REAL'],  ['tan_dichiarato',  'REAL'],
+        ['durata_mesi',     'INTEGER'],['teg_reale',       'REAL'],
+        ['soglia_usura',    'REAL'],  ['score_finale',    'INTEGER'],
+        ['usura_rilevata',  'INTEGER'],['fattori_json',    'TEXT'],
+        ['voci_json',       'TEXT'],  ['anatocismo_json', 'TEXT']
+      ];
+      for (const [col, tipo] of nuoveCols) {
+        if (!colNames.includes(col)) {
+          try { db.run(`ALTER TABLE audit_analisi ADD COLUMN ${col} ${tipo}`); } catch(_) {}
+        }
+      }
+
+      const fattori_json    = JSON.stringify(score_result.fattori || []);
+      const voci_json       = JSON.stringify(voci || []);
+      const anatocismo_json = risultato_anatocismo ? JSON.stringify(risultato_anatocismo) : null;
+      const usura_int       = (score_result.score >= 3) ? 1 : 0;
+      const tan_dec         = typeof tan_dichiarato === 'number' ? tan_dichiarato : parseFloat(tan_dichiarato);
+
+      db.run(
+        `INSERT OR REPLACE INTO audit_analisi
+         (analisi_id, contratto_id, hash_catena, versione_engine, dataset_soglie, timestamp_analisi,
+          tipo_contratto, data_stipula, capitale, tan_dichiarato, durata_mesi,
+          teg_reale, soglia_usura, score_finale, usura_rilevata,
+          fattori_json, voci_json, anatocismo_json)
+         VALUES (?,?,?,'1.2.0','seed_v2',datetime('now'),?,?,?,?,?,?,?,?,?,?,?,?)`,
+        [contratto_id, contratto_id, hash_catena,
+         tipo_contratto, data_stipula || null, capitale, tan_dec, parseInt(durata_mesi)||84,
+         irr_result.irr_annuale, soglia_decimale, score_result.score, usura_int,
+         fattori_json, voci_json, anatocismo_json]
+      );
+      console.log('  ✅ Audit salvato con dati archivio');
     } catch (dbErr) {
       console.error('❌ Errore audit:', dbErr.message);
     }
