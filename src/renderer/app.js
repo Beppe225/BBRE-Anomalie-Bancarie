@@ -347,7 +347,228 @@ window.app = {
   },
 
   loadArchive: () => { console.log('📂 Carico Archivio'); },
-  loadSettings: () => { console.log('⚙️ Carico Impostazioni'); }
+
+  // ── SETTINGS — Parser LLM (Sessione E) ────────────────────────────────────
+  loadSettings: async () => {
+    console.log('⚙️ Carico Impostazioni');
+
+    // Legge config LLM corrente (il renderer vede solo provider + flag key presente)
+    let cfgCorrente = { provider: 'claude', api_key_presente: false };
+    try {
+      const r = await window.electronAPI.getConfigLLM();
+      if (r.successo) cfgCorrente = r.dati;
+    } catch (_) {}
+
+    const main = document.getElementById('main-content') || document.body;
+
+    // Rimuovi settings panel precedente se esiste
+    const oldPanel = document.getElementById('settings-panel');
+    if (oldPanel) oldPanel.remove();
+
+    const panel = document.createElement('div');
+    panel.id = 'settings-panel';
+    panel.style.cssText = `
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.85); display:flex; align-items:center;
+      justify-content:center; z-index:9999;
+    `;
+
+    panel.innerHTML = `
+      <div style="background:#1a1a1a; border:2px solid #c9a227; border-radius:8px;
+                  padding:30px; max-width:480px; width:90%; color:#fff;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h2 style="color:#c9a227; margin:0; font-size:18px;">⚙️ Impostazioni — Parser LLM</h2>
+          <button id="btn-close-settings" style="background:none; border:none; color:#888;
+                  font-size:22px; cursor:pointer; line-height:1;">✕</button>
+        </div>
+
+        <p style="color:#aaa; font-size:13px; margin-bottom:20px; line-height:1.5;">
+          Configura l'intelligenza artificiale per estrarre automaticamente i dati
+          dai contratti bancari (PDF o immagine) nel Step 1.
+        </p>
+
+        <!-- Provider -->
+        <div style="margin-bottom:18px;">
+          <label style="display:block; color:#c9a227; font-size:13px; margin-bottom:6px; font-weight:bold;">
+            Provider LLM
+          </label>
+          <select id="settings-provider" style="width:100%; padding:10px; background:#222;
+                  border:1px solid #444; color:#fff; font-size:14px; border-radius:4px;">
+            <option value="claude" ${cfgCorrente.provider === 'claude' ? 'selected' : ''}>
+              Claude (Anthropic) — Consigliato
+            </option>
+            <option value="openai" ${cfgCorrente.provider === 'openai' ? 'selected' : ''}>
+              GPT-4o (OpenAI)
+            </option>
+          </select>
+        </div>
+
+        <!-- API Key -->
+        <div style="margin-bottom:8px;">
+          <label style="display:block; color:#c9a227; font-size:13px; margin-bottom:6px; font-weight:bold;">
+            API Key
+          </label>
+          <input type="password" id="settings-apikey" placeholder="${cfgCorrente.api_key_presente ? '••••••••••••••••  (già configurata)' : 'Incolla qui la tua API key'}"
+                 style="width:100%; padding:10px; background:#222; border:1px solid #444;
+                        color:#fff; font-size:14px; border-radius:4px; box-sizing:border-box;">
+        </div>
+        <p style="color:#666; font-size:11px; margin-bottom:20px;">
+          🔒 La key viene salvata localmente nel DB. Non viene mai trasmessa al renderer.
+          ${cfgCorrente.api_key_presente ? '<br>✅ API key già presente — lascia vuoto per mantenerla.' : ''}
+        </p>
+
+        <!-- Link documentazione -->
+        <p style="color:#555; font-size:11px; margin-bottom:20px;">
+          Claude key → <a href="https://console.anthropic.com" style="color:#c9a227;">console.anthropic.com</a>
+          &nbsp;|&nbsp;
+          OpenAI key → <a href="https://platform.openai.com/api-keys" style="color:#c9a227;">platform.openai.com</a>
+        </p>
+
+        <!-- Bottoni -->
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button id="btn-cancel-settings" style="padding:10px 20px; background:#333;
+                  color:#fff; border:none; cursor:pointer; border-radius:4px;">
+            Annulla
+          </button>
+          <button id="btn-save-settings" style="padding:10px 24px; background:#c9a227;
+                  color:#000; border:none; cursor:pointer; font-weight:bold; border-radius:4px;">
+            💾 Salva
+          </button>
+        </div>
+
+        <div id="settings-msg" style="margin-top:12px; font-size:13px; min-height:18px;"></div>
+      </div>
+    `;
+
+    document.body.appendChild(panel);
+
+    const chiudi = () => panel.remove();
+
+    document.getElementById('btn-close-settings').onclick   = chiudi;
+    document.getElementById('btn-cancel-settings').onclick  = chiudi;
+
+    document.getElementById('btn-save-settings').onclick = async () => {
+      const provider = document.getElementById('settings-provider').value;
+      const api_key  = document.getElementById('settings-apikey').value.trim();
+      const msgEl    = document.getElementById('settings-msg');
+
+      // Se il campo è vuoto e la key era già presente, non sovrascrivere
+      const payload = { provider };
+      if (api_key !== '') payload.api_key = api_key;
+
+      try {
+        msgEl.style.color = '#aaa';
+        msgEl.innerText = '⏳ Salvataggio in corso...';
+
+        const r = await window.electronAPI.salvaConfigLLM(payload);
+        if (r.successo) {
+          msgEl.style.color = '#4caf50';
+          msgEl.innerText   = '✅ Configurazione salvata correttamente.';
+          setTimeout(chiudi, 1200);
+        } else {
+          msgEl.style.color = '#ff4d4d';
+          msgEl.innerText   = '❌ ' + r.errore;
+        }
+      } catch (err) {
+        msgEl.style.color = '#ff4d4d';
+        msgEl.innerText   = '❌ ' + err.message;
+      }
+    };
+  },
+
+  // ── CARICA DOCUMENTO (Sessione E) ─────────────────────────────────────────
+  caricaDocumentoParser: async () => {
+    // Stato feedback visivo
+    const btnEl = document.getElementById('btn-carica-doc');
+    const msgEl = document.getElementById('parser-msg');
+    if (msgEl) { msgEl.style.color = '#aaa'; msgEl.innerText = '⏳ Selezione file...'; }
+
+    try {
+      // 1. Apri dialog nativo nel main process
+      const dialogResult = await window.electronAPI.apriDialogFile();
+      if (!dialogResult.successo) {
+        if (msgEl) msgEl.innerText = '';
+        return;
+      }
+
+      if (btnEl) { btnEl.disabled = true; btnEl.innerText = '⏳ Analisi in corso...'; }
+      if (msgEl) { msgEl.style.color = '#c9a227'; msgEl.innerText = '🤖 LLM in elaborazione, attendere...'; }
+
+      // 2. Chiama parser LLM nel main process
+      const risultato = await window.electronAPI.caricaDocumento(dialogResult.filePath);
+
+      if (btnEl) { btnEl.disabled = false; btnEl.innerText = '📄 Carica Documento'; }
+
+      if (!risultato.successo) {
+        const errMsg = risultato.meta?.errore_llm || risultato.errore || 'Errore sconosciuto';
+
+        // Errore API key non configurata → apri settings
+        if (errMsg.toLowerCase().includes('api key') || errMsg.toLowerCase().includes('impostazioni')) {
+          if (msgEl) {
+            msgEl.style.color = '#ff9800';
+            msgEl.innerHTML   = `⚠️ ${errMsg} &nbsp;<button onclick="app.loadSettings()" style="color:#c9a227;background:none;border:none;cursor:pointer;font-size:12px;text-decoration:underline;">→ Apri Impostazioni</button>`;
+          }
+        } else {
+          if (msgEl) { msgEl.style.color = '#ff4d4d'; msgEl.innerText = '❌ ' + errMsg; }
+        }
+        return;
+      }
+
+      // 3. Pre-compila i campi del form Step 1
+      const d = risultato.dati_form;
+      let compilati = 0;
+
+      if (d.tipo_contratto) {
+        const sel = document.getElementById('tipo');
+        if (sel) { sel.value = d.tipo_contratto; compilati++; }
+      }
+      if (d.data_stipula) {
+        const inp = document.getElementById('data');
+        if (inp) { inp.value = d.data_stipula; compilati++; }
+      }
+      if (d.capitale !== null) {
+        const inp = document.getElementById('capitale');
+        if (inp) { inp.value = d.capitale; compilati++; }
+      }
+      if (d.tan !== null) {
+        const inp = document.getElementById('tan');
+        if (inp) { inp.value = d.tan; compilati++; }
+      }
+      if (d.durata_mesi !== null) {
+        // Prova a trovare il campo durata (esiste in alcune versioni del form)
+        const inp = document.getElementById('durata');
+        if (inp) { inp.value = d.durata_mesi; compilati++; }
+        AppState.contratto.durata_mesi = d.durata_mesi;
+      }
+
+      // 4. Aggiungi voci di costo estratte (se non già presenti)
+      if (d.voci_costo && d.voci_costo.length > 0) {
+        d.voci_costo.forEach(v => {
+          const esiste = AppState.costi.find(c => c.voce.toLowerCase() === v.voce.toLowerCase());
+          if (!esiste) {
+            AppState.costi.push({ id: Date.now() + Math.random(), voce: v.voce, importo: v.importo, inclusa: true });
+          }
+        });
+        app.renderCosts();
+      }
+
+      // 5. Feedback successo
+      const meta     = risultato.meta || {};
+      const noteText = d.note_parser ? ` — Note: ${d.note_parser}` : '';
+      const warnText = meta.errore_caricamento ? ` (⚠️ ${meta.errore_caricamento})` : '';
+
+      if (msgEl) {
+        msgEl.style.color = '#4caf50';
+        msgEl.innerText = `✅ ${compilati} campi compilati da "${meta.nome_file}" (${meta.pagine} pag., ${meta.provider_usato})${noteText}${warnText}`;
+      }
+
+    } catch (err) {
+      if (btnEl) { btnEl.disabled = false; btnEl.innerText = '📄 Carica Documento'; }
+      if (msgEl) { msgEl.style.color = '#ff4d4d'; msgEl.innerText = '❌ ' + err.message; }
+      console.error('❌ caricaDocumentoParser:', err);
+    }
+  }
 };
 
 document.addEventListener('DOMContentLoaded', () => {

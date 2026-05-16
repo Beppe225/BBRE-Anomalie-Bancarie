@@ -219,7 +219,104 @@ function setupIpcHandlers() {
     }
   });
 
-  console.log('✅ IPC Handlers registrati (9 canali)');
+  // ── CARICA DOCUMENTO (Sessione E — Parser LLM) ───────────────────────────
+  // Riceve il path del file scelto dall'utente, lancia il parser LLM e
+  // restituisce i dati pronti per pre-compilare Step 1.
+  // SICUREZZA: api_key letta dal DB nel main process, mai esposta al renderer.
+
+  ipcMain.handle('carica-documento', async (event, filePath) => {
+    try {
+      if (!filePath || typeof filePath !== 'string') {
+        return { successo: false, errore: 'Percorso file non valido' };
+      }
+      const { analizzaDocumento, leggiConfigLLM } = require('../parser/parser_orchestrator');
+      const db        = getDb();
+      const configLLM = leggiConfigLLM(db);
+      const risultato = await analizzaDocumento(filePath, configLLM);
+      return risultato;
+    } catch (err) {
+      console.error('❌ Errore carica-documento:', err.message);
+      return { successo: false, errore: err.message };
+    }
+  });
+
+  // ── APRI DIALOG FILE (Sessione E) ─────────────────────────────────────────
+  // Il renderer non può aprire dialog file nativi: lo fa il main process.
+
+  ipcMain.handle('apri-dialog-file', async () => {
+    try {
+      const { filePaths, canceled } = await dialog.showOpenDialog({
+        title: 'Seleziona documento bancario',
+        filters: [
+          { name: 'Documenti', extensions: ['pdf', 'jpg', 'jpeg', 'png'] },
+          { name: 'PDF', extensions: ['pdf'] },
+          { name: 'Immagini', extensions: ['jpg', 'jpeg', 'png'] }
+        ],
+        properties: ['openFile']
+      });
+      if (canceled || !filePaths || filePaths.length === 0) {
+        return { successo: false, errore: 'Nessun file selezionato' };
+      }
+      return { successo: true, filePath: filePaths[0] };
+    } catch (err) {
+      return { successo: false, errore: err.message };
+    }
+  });
+
+  // ── SALVA CONFIG LLM (Sessione E — Settings) ─────────────────────────────
+  // Salva provider e api_key nel DB. L'api_key NON viene mai rimandata al renderer.
+
+  ipcMain.handle('salva-config-llm', async (event, { provider, api_key }) => {
+    try {
+      const db = getDb();
+      // Upsert provider
+      const hasProvider = db.exec("SELECT chiave FROM config_app WHERE chiave='llm_provider'");
+      if (hasProvider.length > 0 && hasProvider[0].values.length > 0) {
+        db.run("UPDATE config_app SET valore=?, updated_at=CURRENT_TIMESTAMP WHERE chiave='llm_provider'",
+               [provider || 'claude']);
+      } else {
+        db.run("INSERT INTO config_app (chiave, valore, descrizione) VALUES ('llm_provider', ?, 'Provider LLM parser documenti')",
+               [provider || 'claude']);
+      }
+      // Upsert api_key
+      const hasKey = db.exec("SELECT chiave FROM config_app WHERE chiave='llm_api_key'");
+      if (hasKey.length > 0 && hasKey[0].values.length > 0) {
+        db.run("UPDATE config_app SET valore=?, updated_at=CURRENT_TIMESTAMP WHERE chiave='llm_api_key'",
+               [api_key || '']);
+      } else {
+        db.run("INSERT INTO config_app (chiave, valore, descrizione) VALUES ('llm_api_key', ?, 'API key LLM parser documenti')",
+               [api_key || '']);
+      }
+      global.dbManager.save();
+      console.log('✅ Config LLM salvata (provider:', provider, ')');
+      return { successo: true };
+    } catch (err) {
+      console.error('❌ Errore salva-config-llm:', err.message);
+      return { successo: false, errore: err.message };
+    }
+  });
+
+  // ── LEGGI CONFIG LLM (Sessione E — Settings UI) ──────────────────────────
+  // Restituisce provider e se l'api_key è presente (NON la key stessa).
+
+  ipcMain.handle('get-config-llm', async () => {
+    try {
+      const db  = getDb();
+      const res = db.exec("SELECT chiave, valore FROM config_app WHERE chiave IN ('llm_provider','llm_api_key')");
+      const cfg = { provider: 'claude', api_key_presente: false };
+      if (res.length > 0) {
+        res[0].values.forEach(([k, v]) => {
+          if (k === 'llm_provider') cfg.provider = v || 'claude';
+          if (k === 'llm_api_key')  cfg.api_key_presente = !!(v && v.trim() !== '');
+        });
+      }
+      return { successo: true, dati: cfg };
+    } catch (err) {
+      return { successo: false, errore: err.message };
+    }
+  });
+
+  console.log('✅ IPC Handlers registrati (14 canali)');
 }
 
 module.exports = { setupIpcHandlers };

@@ -34,6 +34,37 @@
       <!-- STEP 1: Contratto -->
       <section id="step-1" class="step active">
         <h2>Dati Contratto</h2>
+
+        <!-- ── Sessione E: pulsante parser LLM ── -->
+        <div style="background:#1a1a1a; border:1px solid #333; border-radius:6px;
+                    padding:14px 16px; margin-bottom:18px; display:flex;
+                    align-items:center; gap:14px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:180px;">
+            <div style="color:#c9a227; font-size:13px; font-weight:bold; margin-bottom:4px;">
+              🤖 Parser Automatico
+            </div>
+            <div style="color:#888; font-size:11px; line-height:1.4;">
+              Carica un PDF o immagine del contratto e il form verrà compilato automaticamente via AI.
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+            <button id="btn-carica-doc" type="button"
+                    onclick="app.caricaDocumentoParser()"
+                    style="padding:9px 16px; background:#c9a227; color:#000; border:none;
+                           cursor:pointer; font-weight:bold; font-size:13px; border-radius:4px;
+                           white-space:nowrap;">
+              📄 Carica Documento
+            </button>
+            <button type="button" onclick="app.loadSettings()"
+                    style="padding:5px 12px; background:none; color:#666; border:1px solid #333;
+                           cursor:pointer; font-size:11px; border-radius:4px;">
+              ⚙️ Impostazioni
+            </button>
+          </div>
+        </div>
+        <div id="parser-msg" style="font-size:12px; min-height:16px; margin-bottom:12px; color:#aaa;"></div>
+        <!-- ── Fine parser LLM ── -->
+
         <form id="form-contratto" onsubmit="return false;">
           <div class="form-group">
             <label>Tipologia</label>
