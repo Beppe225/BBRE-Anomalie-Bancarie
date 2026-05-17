@@ -15,6 +15,16 @@ window.app = {
       document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
       const s = document.getElementById('step-archivio');
       if (s) s.classList.add('active');
+    } else if (page === 'dashboard') {
+      app.loadDashboard();
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      const s = document.getElementById('step-dashboard');
+      if (s) s.classList.add('active');
+    } else if (page === 'npl') {
+      app.loadNPL();
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      const s = document.getElementById('step-npl');
+      if (s) s.classList.add('active');
     } else if (page === 'impostazioni') {
       app.loadSettings();
     }
@@ -24,24 +34,49 @@ window.app = {
     console.log('Navigazione verso Step:', target);
     
     if (AppState.step === 1 && target === 2) {
-      const tipo    = document.getElementById('tipo').value;
-      const data    = document.getElementById('data').value;
+      const tipo     = document.getElementById('tipo').value;
+      const data     = document.getElementById('data').value;
       const capitale = document.getElementById('capitale').value;
-      const tan     = document.getElementById('tan').value;
-      const durata  = document.getElementById('durata') ? document.getElementById('durata').value : '84';
+      const tan      = document.getElementById('tan').value;
+      const durata   = document.getElementById('durata') ? document.getElementById('durata').value : '84';
 
       if (!tipo || !data || !capitale || !tan) {
         alert('⚠️ Compila tutti i campi obbligatori!');
         return;
       }
 
+      // ── Sessione J: Validazione avanzata ───────────────────────────────
+      const vResult = app._validaInput({ tipo, data, capitale: parseFloat(capitale), tan: parseFloat(tan), durata: parseInt(durata)||84 });
+      
+      if (vResult.errori.length > 0) {
+        const msgs = vResult.errori.map(e => '❌ ' + e.msg).join('\n');
+        alert('Correggi i seguenti errori:\n\n' + msgs);
+        return;
+      }
+
+      if (vResult.warnings.length > 0) {
+        const msgs = vResult.warnings.map(w => '⚠️ ' + w.msg).join('\n');
+        const procedi = confirm('Attenzione — Anomalie rilevate nei dati:\n\n' + msgs + '\n\nProcedere comunque con l\'analisi?');
+        if (!procedi) return;
+      }
+
+      // Mostra info non bloccanti nel parser-msg
+      if (vResult.info.length > 0) {
+        const msgEl = document.getElementById('parser-msg');
+        if (msgEl) {
+          msgEl.style.color = '#888';
+          msgEl.innerText = 'ℹ️ ' + vResult.info.map(i => i.msg).join(' | ');
+        }
+      }
+      // ── Fine validazione J ─────────────────────────────────────────────
+
       AppState.contratto = {
-        contratto_id:  'BBRE-' + Date.now(),
+        contratto_id:   'BBRE-' + Date.now(),
         tipo_contratto: tipo,
-        data_stipula:  data,
-        capitale:      parseFloat(capitale),
+        data_stipula:   data,
+        capitale:       parseFloat(capitale),
         tan_dichiarato: parseFloat(tan) / 100,
-        durata_mesi:   parseInt(durata) || 84
+        durata_mesi:    parseInt(durata) || 84
       };
       console.log('✅ Dati contratto salvati:', AppState.contratto);
     }
@@ -52,6 +87,53 @@ window.app = {
       next.classList.add('active');
       AppState.step = target;
     }
+  },
+
+  // ── Validazione input lato renderer (Sessione J) ──────────────────────
+  _validaInput: ({ tipo, data, capitale, tan, durata }) => {
+    const errori   = [];
+    const warnings = [];
+    const info     = [];
+
+    const RANGES = {
+      mutuo_ipotecario: { tan_max: 25, tan_warn: 10, cap_min: 10000, cap_max: 5000000, dur_max: 480 },
+      cqs:              { tan_max: 35, tan_warn: 20, cap_min: 1000,  cap_max: 150000,  dur_max: 120 },
+      credito_consumo:  { tan_max: 40, tan_warn: 25, cap_min: 500,   cap_max: 75000,   dur_max: 120 }
+    };
+    const SOGLIE_APPROX = {
+      mutuo_ipotecario: 8.0, cqs: 14.5, credito_consumo: 16.5
+    };
+
+    // Data
+    if (data) {
+      const d = new Date(data);
+      if (d > new Date()) errori.push({ campo:'data', msg:'Data stipula nel futuro.' });
+      else if (d.getFullYear() < 2000) warnings.push({ campo:'data', msg:`Anno ${d.getFullYear()}: verifica copertura soglie storiche.` });
+    }
+
+    // TAN e capitale per tipo
+    const r = RANGES[tipo];
+    if (r) {
+      if (tan > r.tan_max) errori.push({ campo:'tan', msg:`TAN ${tan}% supera il massimo plausibile (${r.tan_max}%) per questa tipologia.` });
+      else if (tan > r.tan_warn) warnings.push({ campo:'tan', msg:`TAN ${tan}% elevato per ${tipo.replace(/_/g,' ')}. Probabile zona usura.` });
+
+      const soglia = SOGLIE_APPROX[tipo];
+      if (tan > soglia * 1.15) warnings.push({ campo:'tan', msg:`⚠️ TAN ${tan}% già sopra la soglia usura tipica (~${soglia}%). Usura probabile — esegui analisi urgente.`, highlight: true });
+
+      if (capitale < r.cap_min) warnings.push({ campo:'capitale', msg:`Capitale €${capitale.toLocaleString('it-IT')} basso per questa tipologia.` });
+      if (capitale > r.cap_max) warnings.push({ campo:'capitale', msg:`Capitale €${capitale.toLocaleString('it-IT')} molto alto per questa tipologia.` });
+      if (durata > r.dur_max)   warnings.push({ campo:'durata', msg:`Durata ${durata} mesi insolita per questa tipologia.` });
+    }
+
+    // Coerenza TAN/durata
+    if (tan > 0 && capitale > 0 && durata > 0) {
+      const interessiApprox = capitale * (tan/100) * (durata/12);
+      if (interessiApprox / capitale > 2) {
+        info.push({ campo:'coerenza', msg:`Interessi totali stimati: ~€${interessiApprox.toFixed(0)} (${((interessiApprox/capitale)*100).toFixed(0)}% del capitale nominale).` });
+      }
+    }
+
+    return { valido: errori.length === 0, errori, warnings, info };
   },
 
   addCost: (type) => {
@@ -680,6 +762,354 @@ window.app = {
     app.renderCosts();
 
     console.log('✅ Form resettato per nuova pratica');
+  },
+
+  // ── DASHBOARD STATISTICHE (Sessione K) ───────────────────────────────────
+  loadDashboard: async () => {
+    const container = document.getElementById('step-dashboard');
+    if (!container) return;
+    container.innerHTML = '<h2>📊 Dashboard</h2><p style="color:#666;">⏳ Caricamento statistiche...</p>';
+
+    try {
+      const r = await window.electronAPI.invoke('get-statistiche');
+      if (!r.successo) throw new Error(r.errore);
+      const d = r.dati;
+
+      if (d.vuoto) {
+        container.innerHTML = `<h2>📊 Dashboard</h2>
+          <p style="color:#666;margin-top:20px;">Nessuna pratica in archivio. Esegui la prima analisi per visualizzare le statistiche.</p>
+          <button onclick="app.nav('nuova')" style="margin-top:16px;padding:10px 20px;background:#c9a227;color:#000;border:none;cursor:pointer;font-weight:bold;border-radius:4px;">+ Nuova Pratica</button>`;
+        return;
+      }
+
+      // Score bar chart (SVG semplice)
+      const scoreLabels = ['0 — Nessuna', '1 — Grigia', '2 — Possibile', '3 — Probabile', '4 — Forte'];
+      const scoreColors = ['#4dff88', '#ffd700', '#ff8c00', '#ff4d4d', '#cc0000'];
+      const maxScore    = Math.max(1, ...Object.values(d.per_score));
+
+      const scoreBars = Object.entries(d.per_score).map(([s, n]) => {
+        const pct = (n / maxScore * 100).toFixed(0);
+        const lbl = scoreLabels[parseInt(s)] || s;
+        return `
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:120px;font-size:11px;color:#aaa;text-align:right;">${lbl}</div>
+            <div style="flex:1;background:#222;border-radius:3px;height:22px;position:relative;">
+              <div style="width:${pct}%;background:${scoreColors[parseInt(s)]};height:100%;border-radius:3px;transition:width 0.3s;"></div>
+              <span style="position:absolute;right:6px;top:3px;font-size:11px;color:#000;font-weight:bold;">${n > 0 ? n : ''}</span>
+            </div>
+            <div style="width:28px;font-size:12px;color:#c9a227;font-weight:bold;text-align:right;">${n}</div>
+          </div>`;
+      }).join('');
+
+      // Trend mensile
+      const trendEntries = Object.entries(d.trend_mensile);
+      const maxTrend = Math.max(1, ...trendEntries.map(([,v]) => v.totale));
+      const trendBars = trendEntries.map(([mese, v]) => {
+        const pct   = (v.totale / maxTrend * 100).toFixed(0);
+        const pctU  = v.totale > 0 ? (v.usura / v.totale * 100).toFixed(0) : 0;
+        const label = mese.substring(5); // MM
+        return `
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:#222;border-radius:2px;height:60px;display:flex;flex-direction:column-reverse;">
+              <div style="height:${pct}%;background:#c9a227;border-radius:2px;position:relative;">
+                ${v.usura > 0 ? `<div style="height:${pctU}%;background:#ff4d4d;border-radius:2px 2px 0 0;"></div>` : ''}
+              </div>
+            </div>
+            <div style="font-size:9px;color:#555;">${label}</div>
+            <div style="font-size:10px;color:#888;">${v.totale || ''}</div>
+          </div>`;
+      }).join('');
+
+      // Per tipo
+      const tipoHtml = Object.entries(d.per_tipo).map(([t, n]) => {
+        const lbl = t.replace(/_/g,' ').toUpperCase();
+        const pct = (n / d.totale * 100).toFixed(0);
+        return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222;font-size:12px;">
+          <span style="color:#aaa;">${lbl}</span>
+          <span><strong style="color:#c9a227;">${n}</strong><span style="color:#555;font-size:10px;margin-left:6px;">${pct}%</span></span>
+        </div>`;
+      }).join('');
+
+      container.innerHTML = `
+        <h2>📊 Dashboard — ${d.totale} Pratiche Analizzate</h2>
+        <p style="color:#555;font-size:12px;">Prima pratica: ${d.prima_pratica} &nbsp;|&nbsp; Ultima: ${d.ultima_pratica}</p>
+
+        <!-- KPI Cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;">
+          ${_kpiCard('Totale Pratiche', d.totale, '', '#c9a227')}
+          ${_kpiCard('Con Usura', d.con_usura + ' (' + d.pct_usura + '%)', '', d.con_usura > 0 ? '#ff4d4d' : '#4dff88')}
+          ${_kpiCard('Score Medio', d.score_medio + '/4', '', '#ffd700')}
+          ${_kpiCard('TEG Medio', d.teg_medio ? d.teg_medio + '%' : '—', '', '#aaa')}
+          ${_kpiCard('Capitale Analizzato', '€ ' + (d.capitale_totale/1000).toFixed(0) + 'K', '', '#aaa')}
+          ${_kpiCard('Con Moratori', d.con_moratori, '', '#888')}
+          ${_kpiCard('Con Anatocismo', d.con_anatocismo, '', '#888')}
+          ${d.delta_medio_usura ? _kpiCard('Delta Medio Usura', '+' + d.delta_medio_usura + 'pp', '', '#ff4d4d') : ''}
+        </div>
+
+        <!-- Distribuzione Score -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+          <div style="background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:16px;">
+            <h3 style="color:#c9a227;margin:0 0 14px;font-size:14px;">Distribuzione Score Rischio</h3>
+            ${scoreBars}
+          </div>
+          <div style="background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:16px;">
+            <h3 style="color:#c9a227;margin:0 0 14px;font-size:14px;">Per Tipologia</h3>
+            ${tipoHtml || '<p style="color:#666;">Nessun dato</p>'}
+          </div>
+        </div>
+
+        <!-- Trend mensile -->
+        <div style="background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:16px;margin-bottom:20px;">
+          <h3 style="color:#c9a227;margin:0 0 14px;font-size:14px;">Trend Mensile (ultimi 12 mesi) 
+            <span style="font-size:10px;color:#555;font-weight:normal;">
+              &nbsp;█ <span style="color:#c9a227;">Totale</span> &nbsp;█ <span style="color:#ff4d4d;">Usura</span>
+            </span>
+          </h3>
+          <div style="display:flex;gap:4px;align-items:flex-end;height:80px;">${trendBars}</div>
+        </div>
+
+        <!-- Azioni -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="app.nav('nuova')" style="padding:10px 20px;background:#c9a227;color:#000;border:none;cursor:pointer;font-weight:bold;border-radius:4px;">+ Nuova Pratica</button>
+          <button onclick="app.nav('archivio')" style="padding:10px 20px;background:#333;color:#fff;border:1px solid #555;cursor:pointer;border-radius:4px;">📂 Archivio</button>
+          <button onclick="app.exportExcelArchivio()" style="padding:10px 20px;background:#1a4a1a;color:#fff;border:1px solid #2a7a2a;cursor:pointer;border-radius:4px;font-weight:bold;">📋 Esporta Excel</button>
+        </div>
+      `;
+
+      function _kpiCard(label, value, sub, color) {
+        return `<div style="background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:14px 16px;">
+          <div style="font-size:10px;color:#555;text-transform:uppercase;margin-bottom:4px;">${label}</div>
+          <div style="font-size:22px;font-weight:bold;color:${color};">${value}</div>
+          ${sub ? `<div style="font-size:10px;color:#555;margin-top:3px;">${sub}</div>` : ''}
+        </div>`;
+      }
+
+    } catch (err) {
+      container.innerHTML = `<h2>📊 Dashboard</h2><p style="color:#ff4d4d;">❌ Errore: ${err.message}</p>`;
+    }
+  },
+
+  // ── NPL / STRALCIO (Sessione NPL) ────────────────────────────────────────
+  loadNPL: () => {
+    const container = document.getElementById('step-npl');
+    if (!container) return;
+
+    container.innerHTML = `
+      <h2>📋 Analisi NPL / Stralcio</h2>
+      <p style="color:#666;font-size:12px;margin-bottom:18px;">
+        Calcola ROI, recovery rate e score opportunità per acquisto crediti NPL o proposte di stralcio.
+        <span style="color:#555;">I risultati sono stime indicative — richiedere due diligence professionale.</span>
+      </p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+        <!-- FORM INPUT -->
+        <div style="background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:20px;">
+          <h3 style="color:#c9a227;margin:0 0 16px;font-size:14px;">Dati Operazione</h3>
+
+          <div class="form-group">
+            <label style="color:#aaa;font-size:12px;">Valore Nominale Credito (€)</label>
+            <input type="number" id="npl-nominale" step="100" placeholder="Es. 100000"
+                   style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label style="color:#aaa;font-size:12px;">Prezzo Acquisto Proposto (€)</label>
+            <input type="number" id="npl-prezzo" step="100" placeholder="Es. 15000"
+                   style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+          </div>
+          <div class="form-group" style="margin-top:12px;">
+            <label style="color:#aaa;font-size:12px;">Stima Recupero Netto (€)</label>
+            <input type="number" id="npl-recupero" step="100" placeholder="Es. 40000"
+                   style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+            <div class="form-group">
+              <label style="color:#aaa;font-size:12px;">Tipo Garanzia</label>
+              <select id="npl-garanzia" style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+                <option value="ipotecaria">Ipotecaria</option>
+                <option value="privilegiata">Privilegiata</option>
+                <option value="chirografaria" selected>Chirografaria</option>
+                <option value="nessuna">Nessuna</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="color:#aaa;font-size:12px;">Stato Pratica</label>
+              <select id="npl-stato" style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+                <option value="sofferenza">Sofferenza</option>
+                <option value="inadempienz_probab">Inadempienza Probabile</option>
+                <option value="past_due">Past Due</option>
+                <option value="ristrutturato">Ristrutturato</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+            <div class="form-group">
+              <label style="color:#aaa;font-size:12px;">Anni Recupero Stimati</label>
+              <input type="number" id="npl-anni" step="0.5" min="0.5" max="15" value="3"
+                     style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+            </div>
+            <div class="form-group">
+              <label style="color:#aaa;font-size:12px;">N° Debitori</label>
+              <input type="number" id="npl-debitori" step="1" min="1" value="1"
+                     style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+            <div class="form-group">
+              <label style="color:#aaa;font-size:12px;">Costi Legali Stimati (€)</label>
+              <input type="number" id="npl-legali" step="100" min="0" placeholder="Es. 8000"
+                     style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+            </div>
+            <div class="form-group">
+              <label style="color:#aaa;font-size:12px;">Costi Gestione (€)</label>
+              <input type="number" id="npl-gestione" step="100" min="0" placeholder="Es. 2000"
+                     style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:12px;">
+            <label style="color:#aaa;font-size:12px;">Note (opzionale)</label>
+            <input type="text" id="npl-note" placeholder="Riferimento pratica, debitore, asset..."
+                   style="width:100%;padding:9px;background:#222;border:1px solid #444;color:#fff;border-radius:4px;margin-top:4px;">
+          </div>
+
+          <button onclick="app.eseguiNPL()" style="width:100%;margin-top:18px;padding:12px;background:#c9a227;color:#000;border:none;cursor:pointer;font-weight:bold;font-size:14px;border-radius:4px;">
+            📊 Analizza Operazione
+          </button>
+          <div id="npl-msg" style="margin-top:8px;font-size:12px;min-height:14px;color:#aaa;"></div>
+        </div>
+
+        <!-- RISULTATI -->
+        <div id="npl-risultati" style="background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:20px;">
+          <h3 style="color:#c9a227;margin:0 0 16px;font-size:14px;">Risultati Analisi</h3>
+          <p style="color:#555;font-size:12px;">Compila il form e premi Analizza.</p>
+        </div>
+      </div>
+    `;
+  },
+
+  eseguiNPL: async () => {
+    const g = (id) => document.getElementById(id);
+    const msgEl = g('npl-msg');
+
+    const payload = {
+      valore_nominale:        parseFloat(g('npl-nominale')?.value) || 0,
+      prezzo_acquisto:        parseFloat(g('npl-prezzo')?.value)   || 0,
+      valore_recupero_stima:  parseFloat(g('npl-recupero')?.value) || 0,
+      tipo_garanzia:          g('npl-garanzia')?.value || 'chirografaria',
+      anni_contenzioso:       parseFloat(g('npl-anni')?.value)     || 3,
+      costi_legali_stima:     parseFloat(g('npl-legali')?.value)   || 0,
+      costi_gestione_stima:   parseFloat(g('npl-gestione')?.value) || 0,
+      num_debitori:           parseInt(g('npl-debitori')?.value)   || 1,
+      stato_pratica:          g('npl-stato')?.value || 'sofferenza',
+      note:                   g('npl-note')?.value || ''
+    };
+
+    if (!payload.valore_nominale || !payload.prezzo_acquisto || !payload.valore_recupero_stima) {
+      if (msgEl) { msgEl.style.color = '#ff4d4d'; msgEl.innerText = '❌ Compila Nominale, Prezzo e Recupero.'; }
+      return;
+    }
+
+    if (msgEl) { msgEl.style.color = '#aaa'; msgEl.innerText = '⏳ Calcolo in corso...'; }
+
+    try {
+      const r = await window.electronAPI.invoke('analizza-npl', payload);
+      if (!r.successo) { 
+        if (msgEl) { msgEl.style.color = '#ff4d4d'; msgEl.innerText = '❌ ' + r.errore; }
+        return;
+      }
+      if (msgEl) msgEl.innerText = '';
+      app._mostraNPLRisultati(r.dati);
+    } catch (err) {
+      if (msgEl) { msgEl.style.color = '#ff4d4d'; msgEl.innerText = '❌ ' + err.message; }
+    }
+  },
+
+  _mostraNPLRisultati: (d) => {
+    const container = document.getElementById('npl-risultati');
+    if (!container) return;
+
+    const scoreColors = { 0:'#ff4d4d', 0.5:'#ff8c00', 1:'#ff8c00', 1.5:'#ffd700', 2:'#ffd700', 2.5:'#ffd700', 3:'#4dff88', 3.5:'#4dff88', 4:'#00cc44', 4.5:'#00cc44', 5:'#00cc44' };
+    const sColor = scoreColors[d.score] || '#fff';
+    const roiColor = d.roi_netto_pct >= 0 ? '#4dff88' : '#ff4d4d';
+
+    const fattoriHtml = (d.fattori || []).map(f => `
+      <tr>
+        <td style="padding:6px;color:#c9a227;font-weight:bold;">${f.id}</td>
+        <td style="padding:6px;font-size:12px;">${f.nome}</td>
+        <td style="padding:6px;font-size:12px;">${f.valore_label}</td>
+        <td style="padding:6px;font-size:11px;color:#aaa;">${f.impatto}</td>
+      </tr>`).join('');
+
+    const fmt = (n, dec=2) => n != null ? parseFloat(n).toFixed(dec) : '—';
+    const eur = (n) => n != null ? '€ ' + parseFloat(n).toLocaleString('it-IT', {minimumFractionDigits:0}) : '—';
+
+    container.innerHTML = `
+      <h3 style="color:#c9a227;margin:0 0 14px;font-size:14px;">Risultati Analisi</h3>
+
+      <!-- Score badge -->
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="display:inline-block;border:3px solid ${sColor};border-radius:8px;padding:10px 24px;">
+          <div style="font-size:10px;color:#555;text-transform:uppercase;">Score Opportunità</div>
+          <div style="font-size:32px;font-weight:bold;color:${sColor};">${d.score}<span style="font-size:14px;color:#555;">/5</span></div>
+          <div style="font-size:12px;color:${sColor};">${d.label_score}</div>
+        </div>
+      </div>
+
+      <!-- KPI grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div style="background:#111;border:1px solid #333;border-radius:4px;padding:10px;">
+          <div style="font-size:10px;color:#555;">Haircut</div>
+          <div style="font-size:18px;font-weight:bold;color:#c9a227;">${fmt(d.haircut_pct)}%</div>
+          <div style="font-size:10px;color:#555;">sconto sul nominale</div>
+        </div>
+        <div style="background:#111;border:1px solid #333;border-radius:4px;padding:10px;">
+          <div style="font-size:10px;color:#555;">Recovery Rate</div>
+          <div style="font-size:18px;font-weight:bold;color:#c9a227;">${fmt(d.recovery_rate_pct)}%</div>
+          <div style="font-size:10px;color:#555;">del nominale</div>
+        </div>
+        <div style="background:#111;border:1px solid #333;border-radius:4px;padding:10px;">
+          <div style="font-size:10px;color:#555;">ROI Netto</div>
+          <div style="font-size:18px;font-weight:bold;color:${roiColor};">${fmt(d.roi_netto_pct)}%</div>
+          <div style="font-size:10px;color:#555;">sull'investimento totale</div>
+        </div>
+        <div style="background:#111;border:1px solid #333;border-radius:4px;padding:10px;">
+          <div style="font-size:10px;color:#555;">ROI Annualizzato</div>
+          <div style="font-size:18px;font-weight:bold;color:${roiColor};">${fmt(d.roi_annualizzato_pct)}%</div>
+          <div style="font-size:10px;color:#555;">su ${fmt(d.anni_contenzioso,1)} anni</div>
+        </div>
+      </div>
+
+      <!-- Riepilogo finanziario -->
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;">
+        <tr style="background:#222;"><th colspan="2" style="padding:6px;color:#c9a227;text-align:left;">Riepilogo Finanziario</th></tr>
+        <tr><td style="padding:5px;color:#888;">Investimento Totale</td><td style="padding:5px;text-align:right;">${eur(d.investimento_tot)}</td></tr>
+        <tr style="background:#1a1a1a;"><td style="padding:5px;color:#888;">Profitto Lordo</td><td style="padding:5px;text-align:right;">${eur(d.profitto_lordo)}</td></tr>
+        <tr><td style="padding:5px;color:#888;">Profitto Netto</td><td style="padding:5px;font-weight:bold;text-align:right;color:${roiColor};">${eur(d.profitto_netto)}</td></tr>
+        <tr style="background:#1a1a1a;"><td style="padding:5px;color:#888;">Break-even Price</td><td style="padding:5px;text-align:right;">${eur(d.breakeven_price)}</td></tr>
+        <tr><td style="padding:5px;color:#888;">Margine Sicurezza</td><td style="padding:5px;text-align:right;">${fmt(d.margine_sicurezza_pct)}%</td></tr>
+        <tr style="background:#1a1a1a;"><td style="padding:5px;color:#888;">Costi Totali</td><td style="padding:5px;text-align:right;">${eur(d.costi_totali)}</td></tr>
+      </table>
+
+      <!-- Fattori -->
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr style="background:#222;">
+          <th style="padding:6px;color:#c9a227;">ID</th>
+          <th style="padding:6px;color:#c9a227;">Fattore</th>
+          <th style="padding:6px;color:#c9a227;">Valore</th>
+          <th style="padding:6px;color:#c9a227;">Impatto</th>
+        </tr></thead>
+        <tbody>${fattoriHtml}</tbody>
+      </table>
+
+      <div style="margin-top:12px;padding:10px;background:#111;border:1px solid #333;border-radius:4px;font-size:10px;color:#555;line-height:1.5;">
+        ⚠️ ${d.disclaimer}
+      </div>
+      ${d.note ? `<div style="margin-top:8px;font-size:11px;color:#666;">Note: ${d.note}</div>` : ''}
+    `;
   },
 
   // ── SETTINGS — Parser LLM (Sessione E) ────────────────────────────────────

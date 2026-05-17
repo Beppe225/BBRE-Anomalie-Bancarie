@@ -1,37 +1,90 @@
-appId: com.bbre.anomalie
+# electron-builder.yml — BBRE Anomalie Bancarie v1.2.0
+# Build: npm run build:win
+# Publish: npm run publish:win (richiede GH_TOKEN)
+
+appId: com.bbre.anomalie-bancarie
 productName: BBRE Anomalie Bancarie
 executableName: bbre-anomalie
 
+copyright: "© 2025-2026 BBRE SRL — Giuseppe Barbieri"
+
 directories:
   output: dist
+  buildResources: assets
 
+# File da includere nel build (escludi dev files)
 files:
   - src/**/*
   - package.json
-  - data/**/*
-  - node_modules/**/*
+  - "!src/**/*.test.js"
+  - "!src/**/*.spec.js"
+  - "!**/.DS_Store"
 
+# File extra (cartella data creata al primo avvio)
+extraResources:
+  - from: assets/
+    to: assets/
+    filter: ["*.png", "*.ico"]
+
+# Windows — target principale
 win:
   target:
     - target: nsis
       arch: [x64]
+    - target: portable
+      arch: [x64]
+  icon: assets/icon.ico
   requestedExecutionLevel: asInvoker
+  artifactName: "BBRE-Anomalie-Bancarie-${version}-Setup.exe"
 
+# Installatore NSIS (Windows)
 nsis:
   oneClick: false
+  allowElevation: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: BBRE Anomalie Bancarie
+  shortcutName: "BBRE Anomalie Bancarie"
+  menuCategory: "BBRE"
+  installerIcon: assets/icon.ico
+  uninstallerIcon: assets/icon.ico
+  installerHeader: assets/icon.png
+  # Lingua italiana
+  language: 1040
+  perMachine: false
+  deleteAppDataOnUninstall: false
 
+# Portable (no install)
+portable:
+  artifactName: "BBRE-Anomalie-Bancarie-${version}-Portable.exe"
+
+# macOS (opzionale — future)
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  category: public.app-category.finance
+  artifactName: "BBRE-Anomalie-Bancarie-${version}.dmg"
+
+# ASAR — compressione sicura
 asar: true
 asarUnpack:
-  - node_modules/sql.js/**/*
-  - node_modules/pdf-parse/**/*
+  - "node_modules/sql.js/**/*"
+  - "node_modules/pdf-parse/**/*"
+  - "node_modules/xlsx/**/*"
 
+# Auto-updater GitHub
 publish:
   provider: github
   owner: Beppe225
   repo: BBRE-Anomalie-Bancarie
   private: false
   releaseType: release
+  publishAutoUpdate: true
+
+# Compressione
+compression: maximum
+
+# Nodo bundler
+nodeGypRebuild: false
+buildDependenciesFromSource: false

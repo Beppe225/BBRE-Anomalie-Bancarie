@@ -9,7 +9,11 @@ const CANALI_VALIDI = [
   'carica-documento', 'apri-dialog-file', 'salva-config-llm', 'get-config-llm',
   'elimina-analisi', 'get-market-data', 'get-app-version', 'controlla-aggiornamenti-manuali',
   // Sessione G — Export Excel
-  'export-excel'
+  'export-excel',
+  // Sessione K — Dashboard statistiche
+  'get-statistiche',
+  // Sessione NPL
+  'analizza-npl'
 ];
 
 contextBridge.exposeInMainWorld('electronAPI', {

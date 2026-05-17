@@ -470,7 +470,126 @@ function setupIpcHandlers() {
     }
   });
 
-  console.log('✅ IPC Handlers registrati (16 canali — v1.3.0)');
+  // ── STATISTICHE ARCHIVIO (Sessione K — Dashboard) ───────────────────────
+
+  ipcMain.handle('get-statistiche', async () => {
+    try {
+      const db = getDb();
+      // Query tutti i dati necessari per la dashboard
+      const res = db.exec('SELECT * FROM audit_analisi ORDER BY timestamp_analisi ASC');
+      if (res.length === 0 || res[0].values.length === 0) {
+        return { successo: true, dati: { totale: 0, vuoto: true } };
+      }
+
+      const cols    = res[0].columns;
+      const pratiche = res[0].values.map(row => {
+        const o = {};
+        cols.forEach((c, i) => o[c] = row[i]);
+        return o;
+      });
+
+      const totale = pratiche.length;
+
+      // Distribuzione score
+      const per_score = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
+      pratiche.forEach(p => {
+        const s = parseInt(p.score_finale) || 0;
+        per_score[s] = (per_score[s] || 0) + 1;
+      });
+
+      // Distribuzione per tipo
+      const per_tipo = {};
+      pratiche.forEach(p => {
+        const t = p.tipo_contratto || 'sconosciuto';
+        per_tipo[t] = (per_tipo[t] || 0) + 1;
+      });
+
+      // Usura rilevata
+      const con_usura    = pratiche.filter(p => p.usura_rilevata).length;
+      const senza_usura  = totale - con_usura;
+      const pct_usura    = totale > 0 ? (con_usura / totale * 100).toFixed(1) : 0;
+
+      // Score medio
+      const score_sum  = pratiche.reduce((s, p) => s + (parseInt(p.score_finale) || 0), 0);
+      const score_medio = totale > 0 ? (score_sum / totale).toFixed(2) : 0;
+
+      // TEG medio e soglia media
+      const pratiche_con_teg = pratiche.filter(p => p.teg_reale != null);
+      const teg_medio = pratiche_con_teg.length > 0
+        ? (pratiche_con_teg.reduce((s, p) => s + parseFloat(p.teg_reale), 0) / pratiche_con_teg.length * 100).toFixed(4)
+        : null;
+
+      // Capitale totale analizzato
+      const capitale_totale = pratiche.reduce((s, p) => s + (parseFloat(p.capitale) || 0), 0);
+
+      // Delta medio (in pp) per le pratiche con usura
+      const pratiche_usura = pratiche.filter(p => p.usura_rilevata && p.teg_reale && p.soglia_usura);
+      const delta_medio_usura = pratiche_usura.length > 0
+        ? (pratiche_usura.reduce((s, p) => s + (parseFloat(p.teg_reale) - parseFloat(p.soglia_usura)) * 100, 0) / pratiche_usura.length).toFixed(2)
+        : null;
+
+      // Trend mensile (ultimi 12 mesi)
+      const trend_mensile = {};
+      const oggi = new Date();
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(oggi.getFullYear(), oggi.getMonth() - i, 1);
+        const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        trend_mensile[k] = { totale: 0, usura: 0 };
+      }
+      pratiche.forEach(p => {
+        if (!p.timestamp_analisi) return;
+        const k = p.timestamp_analisi.substring(0, 7);
+        if (trend_mensile[k]) {
+          trend_mensile[k].totale++;
+          if (p.usura_rilevata) trend_mensile[k].usura++;
+        }
+      });
+
+      // Con moratori / anatocismo
+      const con_moratori   = pratiche.filter(p => p.moratori_json && p.moratori_json !== 'null').length;
+      const con_anatocismo = pratiche.filter(p => {
+        try { const a = JSON.parse(p.anatocismo_json||'null'); return a && a.applicabile; } catch(_){ return false; }
+      }).length;
+
+      // Prima e ultima pratica
+      const prima  = pratiche[0]?.timestamp_analisi?.substring(0,10) || '—';
+      const ultima = pratiche[pratiche.length-1]?.timestamp_analisi?.substring(0,10) || '—';
+
+      return {
+        successo: true,
+        dati: {
+          totale, vuoto: false,
+          con_usura, senza_usura, pct_usura,
+          score_medio, per_score, per_tipo,
+          teg_medio, capitale_totale,
+          delta_medio_usura,
+          con_moratori, con_anatocismo,
+          trend_mensile,
+          prima_pratica: prima,
+          ultima_pratica: ultima
+        }
+      };
+    } catch (err) {
+      console.error('❌ Errore get-statistiche:', err.message);
+      return { successo: false, errore: err.message };
+    }
+  });
+
+  // ── ANALISI NPL/STRALCIO (Sessione NPL) ─────────────────────────────────
+
+  ipcMain.handle('analizza-npl', async (event, payload) => {
+    try {
+      const { analizza_npl } = require('../engine/normativa/npl_engine');
+      const risultato = analizza_npl(payload);
+      console.log('📊 NPL analisi completata — ROI:', risultato.roi_pct?.toFixed(2) + '%');
+      return { successo: true, dati: risultato };
+    } catch (err) {
+      console.error('❌ Errore analizza-npl:', err.message);
+      return { successo: false, errore: err.message };
+    }
+  });
+
+  console.log('✅ IPC Handlers registrati (18 canali — v1.2.0)');
 }
 
 module.exports = { setupIpcHandlers };
