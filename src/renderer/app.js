@@ -39,6 +39,7 @@ window.app = {
       const capitale = document.getElementById('capitale').value;
       const tan      = document.getElementById('tan').value;
       const durata   = document.getElementById('durata') ? document.getElementById('durata').value : '84';
+      const ref_cli  = document.getElementById('ref_cliente') ? document.getElementById('ref_cliente').value.trim() : '';
 
       if (!tipo || !data || !capitale || !tan) {
         alert('⚠️ Compila tutti i campi obbligatori!');
@@ -76,7 +77,8 @@ window.app = {
         data_stipula:   data,
         capitale:       parseFloat(capitale),
         tan_dichiarato: parseFloat(tan) / 100,
-        durata_mesi:    parseInt(durata) || 84
+        durata_mesi:    parseInt(durata) || 84,
+        ref_cliente:    ref_cli || null
       };
       console.log('✅ Dati contratto salvati:', AppState.contratto);
     }
@@ -90,6 +92,39 @@ window.app = {
   },
 
   // ── Validazione input lato renderer (Sessione J) ──────────────────────
+  // ── Sessione L: Rata stimata real-time ───────────────────────────────────
+  aggiornataRataStimata: () => {
+    const capEl  = document.getElementById('capitale');
+    const tanEl  = document.getElementById('tan');
+    const durEl  = document.getElementById('durata');
+    const outEl  = document.getElementById('rata-stimata');
+    if (!capEl || !tanEl || !durEl || !outEl) return;
+
+    const C = parseFloat(capEl.value);
+    const r = parseFloat(tanEl.value) / 100 / 12;  // tasso mensile
+    const n = parseInt(durEl.value);
+
+    if (!C || isNaN(C) || C <= 0 || !n || isNaN(n) || n <= 0) {
+      outEl.innerText = '';
+      return;
+    }
+
+    let rata;
+    if (!r || isNaN(r) || r === 0) {
+      rata = C / n;
+    } else {
+      rata = C * r / (1 - Math.pow(1 + r, -n));
+    }
+
+    const anni = Math.floor(n / 12);
+    const mesi = n % 12;
+    const durStr = anni > 0
+      ? anni + ' ann' + (anni === 1 ? 'o' : 'i') + (mesi > 0 ? ' e ' + mesi + ' mesi' : '')
+      : n + ' mesi';
+
+    outEl.innerText = `↳ Rata stimata: € ${rata.toFixed(2)} / mese — ${durStr}`;
+  },
+
   _validaInput: ({ tipo, data, capitale, tan, durata }) => {
     const errori   = [];
     const warnings = [];
@@ -562,63 +597,135 @@ window.app = {
         return;
       }
 
-      const righe = pratiche.map(p => {
-        const data  = p.timestamp_analisi ? p.timestamp_analisi.substring(0,10) : '—';
-        const teg   = p.teg_reale != null ? (parseFloat(p.teg_reale)*100).toFixed(4)+'%' : '—';
+      // ── Funzione render righe tabella ──────────────────────────────────
+      const renderRighe = (lista) => lista.map(p => {
+        const data   = p.timestamp_analisi ? p.timestamp_analisi.substring(0,10) : '—';
+        const teg    = p.teg_reale    != null ? (parseFloat(p.teg_reale)*100).toFixed(4)+'%' : '—';
         const soglia = p.soglia_usura != null ? (parseFloat(p.soglia_usura)*100).toFixed(4)+'%' : '—';
         const score  = p.score_finale != null ? p.score_finale : '—';
-        const usura  = p.usura_rilevata ? '<span style="color:#ff4d4d;font-weight:bold;">⚠️ SÌ</span>' : '<span style="color:#4caf50;">NO</span>';
+        const usura  = p.usura_rilevata
+          ? '<span style="color:#ff4d4d;font-weight:bold;">⚠️ SÌ</span>'
+          : '<span style="color:#4caf50;">NO</span>';
         const tipo   = (p.tipo_contratto || '—').replace('_', ' ').toUpperCase();
         const cap    = p.capitale != null ? '€ ' + parseFloat(p.capitale).toLocaleString('it-IT') : '—';
         const id     = p.analisi_id || '—';
+        const ref    = p.ref_cliente
+          ? `<span style="color:#c9a227;font-size:12px;">${p.ref_cliente}</span>`
+          : `<span style="color:#444;font-size:11px;">${id.substring(0,14)}…</span>`;
 
-        return `
-          <tr style="border-bottom:1px solid #222;" id="row-${id}">
-            <td style="padding:10px 8px; color:#c9a227; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${data}</td>
-            <td style="padding:10px 8px; font-size:11px; color:#888; cursor:pointer;" onclick="app.apriPratica('${id}')">${id.substring(0,14)}…</td>
-            <td style="padding:10px 8px; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${tipo}</td>
-            <td style="padding:10px 8px; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${cap}</td>
-            <td style="padding:10px 8px; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${teg}</td>
-            <td style="padding:10px 8px; font-size:12px; cursor:pointer;" onclick="app.apriPratica('${id}')">${soglia}</td>
-            <td style="padding:10px 8px; font-size:13px; text-align:center; cursor:pointer;" onclick="app.apriPratica('${id}')">${score}</td>
-            <td style="padding:10px 8px; text-align:center; cursor:pointer;" onclick="app.apriPratica('${id}')">${usura}</td>
-            <td style="padding:6px 8px; text-align:center;">
-              <button onclick="app.eliminaPratica('${id}')" title="Elimina pratica"
-                style="background:none; border:1px solid #444; color:#ff4d4d; cursor:pointer;
-                       font-size:14px; border-radius:3px; padding:2px 8px; line-height:1;">✕</button>
+        return `<tr style="border-bottom:1px solid #222;" id="row-${id}">
+            <td style="padding:10px 8px;color:#888;font-size:12px;cursor:pointer;" onclick="app.apriPratica('${id}')">${data}</td>
+            <td style="padding:10px 8px;font-size:12px;cursor:pointer;" onclick="app.apriPratica('${id}')">${ref}</td>
+            <td style="padding:10px 8px;font-size:12px;cursor:pointer;" onclick="app.apriPratica('${id}')">${tipo}</td>
+            <td style="padding:10px 8px;font-size:12px;cursor:pointer;" onclick="app.apriPratica('${id}')">${cap}</td>
+            <td style="padding:10px 8px;font-size:12px;cursor:pointer;" onclick="app.apriPratica('${id}')">${teg}</td>
+            <td style="padding:10px 8px;font-size:12px;cursor:pointer;" onclick="app.apriPratica('${id}')">${soglia}</td>
+            <td style="padding:10px 8px;font-size:13px;text-align:center;cursor:pointer;" onclick="app.apriPratica('${id}')">${score}</td>
+            <td style="padding:10px 8px;text-align:center;cursor:pointer;" onclick="app.apriPratica('${id}')">${usura}</td>
+            <td style="padding:6px 8px;text-align:center;">
+              <button onclick="app.eliminaPratica('${id}')" title="Elimina"
+                style="background:none;border:1px solid #444;color:#ff4d4d;cursor:pointer;
+                       font-size:14px;border-radius:3px;padding:2px 8px;line-height:1;">✕</button>
             </td>
           </tr>`;
       }).join('');
 
+      // ── Funzione filtro live (lato renderer) ───────────────────────────
+      window._archivioTuttiDati = pratiche;
+      window._archivioFiltra = () => {
+        const testo  = (document.getElementById('arch-search')?.value || '').toLowerCase();
+        const tipo   = document.getElementById('arch-tipo')?.value  || '';
+        const scoreM = parseInt(document.getElementById('arch-score')?.value) || -1;
+        const usura  = document.getElementById('arch-usura')?.value || '';
+
+        const filtrati = window._archivioTuttiDati.filter(p => {
+          const ref    = (p.ref_cliente    || '').toLowerCase();
+          const id     = (p.analisi_id     || '').toLowerCase();
+          const tipoP  = (p.tipo_contratto || '');
+          const scoreP = parseInt(p.score_finale) || 0;
+          const usuraP = p.usura_rilevata ? 'si' : 'no';
+
+          if (testo  && !ref.includes(testo) && !id.includes(testo)) return false;
+          if (tipo   && tipoP !== tipo)   return false;
+          if (scoreM >= 0 && scoreP < scoreM) return false;
+          if (usura  && usuraP !== usura) return false;
+          return true;
+        });
+
+        const tbody = document.getElementById('arch-tbody');
+        if (tbody) tbody.innerHTML = filtrati.length > 0
+          ? renderRighe(filtrati)
+          : '<tr><td colspan="9" style="text-align:center;color:#666;padding:20px;">Nessuna pratica corrisponde ai filtri</td></tr>';
+
+        const cnt = document.getElementById('arch-count');
+        if (cnt) cnt.innerText = filtrati.length + ' di ' + pratiche.length;
+      };
+
       container.innerHTML = `
         <h2>📂 Archivio Pratiche</h2>
-        <p style="color:#666; font-size:12px; margin-bottom:16px;">${pratiche.length} pratich${pratiche.length===1?'a':'e'} trovata${pratiche.length===1?'':'e'} — clicca una riga per riaprirla</p>
+
+        <!-- Barra filtri -->
+        <div style="background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:12px 14px;
+                    margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <input id="arch-search" type="text" placeholder="🔍 Cerca cliente o ID…"
+                 oninput="window._archivioFiltra()"
+                 style="flex:1;min-width:160px;padding:7px 10px;background:#111;border:1px solid #444;
+                        color:#fff;border-radius:4px;font-size:13px;">
+          <select id="arch-tipo" onchange="window._archivioFiltra()"
+                  style="padding:7px 10px;background:#111;border:1px solid #444;color:#ccc;border-radius:4px;font-size:12px;">
+            <option value="">Tutti i tipi</option>
+            <option value="mutuo_ipotecario">Mutuo Ipotecario</option>
+            <option value="cqs">Cessione Quinto</option>
+            <option value="credito_consumo">Credito Consumo</option>
+          </select>
+          <select id="arch-score" onchange="window._archivioFiltra()"
+                  style="padding:7px 10px;background:#111;border:1px solid #444;color:#ccc;border-radius:4px;font-size:12px;">
+            <option value="-1">Score ≥ (tutti)</option>
+            <option value="1">Score ≥ 1</option>
+            <option value="2">Score ≥ 2</option>
+            <option value="3">Score ≥ 3</option>
+            <option value="4">Score = 4</option>
+          </select>
+          <select id="arch-usura" onchange="window._archivioFiltra()"
+                  style="padding:7px 10px;background:#111;border:1px solid #444;color:#ccc;border-radius:4px;font-size:12px;">
+            <option value="">Usura (tutte)</option>
+            <option value="si">⚠️ Solo usura</option>
+            <option value="no">✓ Solo no usura</option>
+          </select>
+          <button onclick="document.getElementById('arch-search').value='';document.getElementById('arch-tipo').value='';document.getElementById('arch-score').value='-1';document.getElementById('arch-usura').value='';window._archivioFiltra();"
+                  style="padding:7px 12px;background:#333;color:#aaa;border:1px solid #444;cursor:pointer;border-radius:4px;font-size:12px;">✕ Reset</button>
+          <span id="arch-count" style="color:#666;font-size:12px;white-space:nowrap;">${pratiche.length} pratich${pratiche.length===1?'a':'e'}</span>
+        </div>
+
         <div style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <thead>
-              <tr style="background:#1a1a1a; border-bottom:2px solid #c9a227;">
-                <th style="padding:10px 8px; text-align:left; color:#c9a227;">Data</th>
-                <th style="padding:10px 8px; text-align:left; color:#c9a227;">ID Pratica</th>
-                <th style="padding:10px 8px; text-align:left; color:#c9a227;">Tipo</th>
-                <th style="padding:10px 8px; text-align:left; color:#c9a227;">Capitale</th>
-                <th style="padding:10px 8px; text-align:left; color:#c9a227;">TAEG Reale</th>
-                <th style="padding:10px 8px; text-align:left; color:#c9a227;">Soglia</th>
-                <th style="padding:10px 8px; text-align:center; color:#c9a227;">Score</th>
-                <th style="padding:10px 8px; text-align:center; color:#c9a227;">Usura</th>
-                <th style="padding:10px 8px; text-align:center; color:#c9a227;">Azioni</th>
+              <tr style="background:#1a1a1a;border-bottom:2px solid #c9a227;">
+                <th style="padding:10px 8px;text-align:left;color:#c9a227;">Data</th>
+                <th style="padding:10px 8px;text-align:left;color:#c9a227;">Cliente / Riferimento</th>
+                <th style="padding:10px 8px;text-align:left;color:#c9a227;">Tipo</th>
+                <th style="padding:10px 8px;text-align:left;color:#c9a227;">Capitale</th>
+                <th style="padding:10px 8px;text-align:left;color:#c9a227;">TAEG Reale</th>
+                <th style="padding:10px 8px;text-align:left;color:#c9a227;">Soglia</th>
+                <th style="padding:10px 8px;text-align:center;color:#c9a227;">Score</th>
+                <th style="padding:10px 8px;text-align:center;color:#c9a227;">Usura</th>
+                <th style="padding:10px 8px;text-align:center;color:#c9a227;">Azioni</th>
               </tr>
             </thead>
-            <tbody>${righe}</tbody>
+            <tbody id="arch-tbody">${renderRighe(pratiche)}</tbody>
           </table>
         </div>
-        <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
-          <button onclick="app.nav('nuova')" style="padding:10px 20px; background:#c9a227; color:#000; border:none; cursor:pointer; font-weight:bold; border-radius:4px;">
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="app.nav('nuova')"
+                  style="padding:10px 20px;background:#c9a227;color:#000;border:none;cursor:pointer;font-weight:bold;border-radius:4px;">
             + Nuova Pratica
           </button>
-          <button onclick="app.exportCSVArchivio()" style="padding:10px 20px; background:#333; color:#fff; border:1px solid #555; cursor:pointer; border-radius:4px;">
+          <button onclick="app.exportCSVArchivio()"
+                  style="padding:10px 20px;background:#333;color:#fff;border:1px solid #555;cursor:pointer;border-radius:4px;">
             📊 Esporta CSV
           </button>
-          <button onclick="app.exportExcelArchivio()" style="padding:10px 20px; background:#1a4a1a; color:#fff; border:1px solid #2a7a2a; cursor:pointer; border-radius:4px; font-weight:bold;">
+          <button onclick="app.exportExcelArchivio()"
+                  style="padding:10px 20px;background:#1a4a1a;color:#fff;border:1px solid #2a7a2a;cursor:pointer;border-radius:4px;font-weight:bold;">
             📋 Esporta Excel (4 sheet)
           </button>
         </div>`;
@@ -626,6 +733,7 @@ window.app = {
       container.innerHTML = `<h2>📂 Archivio Pratiche</h2><p style="color:#ff4d4d;">❌ Errore: ${err.message}</p>`;
     }
   },
+
 
   // Riapre una pratica dall'archivio mostrando i risultati
   apriPratica: async (analisiId) => {
@@ -641,7 +749,8 @@ window.app = {
         data_stipula:   p.data_stipula,
         capitale:       parseFloat(p.capitale),
         tan_dichiarato: parseFloat(p.tan_dichiarato),
-        durata_mesi:    parseInt(p.durata_mesi) || 84
+        durata_mesi:    parseInt(p.durata_mesi) || 84,
+        ref_cliente:    p.ref_cliente || null
       };
 
       // Ricostruisce l'oggetto risultato da audit_analisi
@@ -660,6 +769,13 @@ window.app = {
         fattori:           fattoriParsed,
         anatocismo:        anatocismoParsed,
         moratori:          moratoriParsed,
+        ref_cliente:       p.ref_cliente || null,
+        contratto_id:      p.analisi_id,
+        tipo_contratto:    p.tipo_contratto,
+        data_stipula:      p.data_stipula,
+        capitale:          parseFloat(p.capitale),
+        tan_dichiarato:    parseFloat(p.tan_dichiarato),
+        durata_mesi:       parseInt(p.durata_mesi) || 84,
         orientamento_giurisp: null
       };
       AppState.costi = p.voci_json ? JSON.parse(p.voci_json) : [];
@@ -717,13 +833,18 @@ window.app = {
     AppState.ultimaAnalisi = null;
 
     // Reset campi Step 1
-    const fields = ['tipo', 'data', 'capitale', 'tan', 'durata'];
+    const fields = ['tipo', 'data', 'capitale', 'tan', 'durata', 'ref_cliente'];
     fields.forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      else if (id === 'durata') el.value = '84';  // ripristina default durata
       else el.value = '';
     });
+
+    // Reset rata stimata
+    const rataEl = document.getElementById('rata-stimata');
+    if (rataEl) rataEl.innerText = '';
 
     // Reset feedback parser
     const msgEl = document.getElementById('parser-msg');

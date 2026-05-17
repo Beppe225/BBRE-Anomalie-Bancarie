@@ -117,6 +117,7 @@
   <div class="grid-2">
     <div>
       <p><strong>Contratto ID:</strong> <span id="r-id"></span></p>
+      <p id="r-ref-row" style="display:none;"><strong>Cliente / Riferimento:</strong> <span id="r-ref"></span></p>
       <p><strong>Tipologia:</strong> <span id="r-tipo"></span></p>
       <p><strong>Data Stipula:</strong> <span id="r-data"></span></p>
     </div>
@@ -223,6 +224,18 @@
     </table>
   </div>
 
+  <!-- N. COSA SIGNIFICA QUESTO RISULTATO (Sessione L — linguaggio semplice) -->
+  <div id="sezione-narrativa" style="border:1.5px solid #000; border-radius:3px; padding:14px 16px; margin-top:20px; page-break-inside:avoid;">
+    <h2 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:6px;" id="r-narr-titolo">Cosa Significa Questo Risultato?</h2>
+    <p id="r-narr-intro" style="font-size:10pt; margin-bottom:10px;"></p>
+    <p id="r-narr-tecnico" style="font-size:9.5pt; color:#333; margin-bottom:10px;"></p>
+    <div id="r-narr-box" style="background:#f4f4f4; border-left:3px solid #000; padding:10px 14px; margin-bottom:10px; font-size:9.5pt;">
+      <strong>⚑ Cosa fare adesso:</strong>
+      <p id="r-narr-azione" style="margin:6px 0 0;"></p>
+    </div>
+    <p style="font-size:8pt; color:#666; font-style:italic;" id="r-narr-disclaimer"></p>
+  </div>
+
   <!-- 7. AUDIT & DISCLAIMER -->
   <div class="disclaimer">
     <h3>⚠️ Disclaimer & Audit Trail</h3>
@@ -259,6 +272,13 @@
       s('r-capitale', fmt(data.capitale, 2));
       s('r-tan',      fmt((data.tan_dichiarato||0)*100, 2));
       s('r-rate',     data.durata_mesi || '84');
+
+      // Riferimento cliente (opzionale)
+      if (data.ref_cliente) {
+        s('r-ref', data.ref_cliente);
+        const refRow = document.getElementById('r-ref-row');
+        if (refRow) refRow.style.display = '';
+      }
 
       // ── 2. TEG / Soglia ─────────────────────────────────────────────────
       const score    = data.score || 0;
@@ -372,6 +392,52 @@
 
       // ── Audit / Hash ────────────────────────────────────────────────────
       s('r-hash', data.hash_catena || '—');
+
+      // ── Sezione Narrativa (Sessione L) ───────────────────────────────────
+      (function generaNarrativa() {
+        const sc     = data.score || 0;
+        const tegP   = ((data.teg || 0) * 100).toFixed(2);
+        const tanP   = ((data.tan_dichiarato || 0) * 100).toFixed(2);
+        const sogP   = (data.soglia > 1 ? data.soglia : (data.soglia||0)*100).toFixed(2);
+        const deltaP = (parseFloat(tegP) - parseFloat(sogP)).toFixed(2);
+        const capFmt = parseFloat(data.capitale || 0).toLocaleString('it-IT', { style:'currency', currency:'EUR' });
+
+        const introMap = [
+          `L'analisi del tuo contratto non ha rilevato elementi di criticità significativa rispetto alle soglie di usura vigenti al momento della stipula.`,
+          `L'analisi del tuo contratto ha evidenziato alcune aree di attenzione, ma non raggiunge la soglia di anomalia conclamata. La situazione è "zona grigia": potrebbero esserci elementi da approfondire.`,
+          `L'analisi ha rilevato possibili anomalie nel contratto. Il costo effettivo del finanziamento risulta superiore a quanto dichiarato nel contratto, e alcuni fattori suggeriscono l'opportunità di un approfondimento tecnico.`,
+          `L'analisi indica un'anomalia probabile. Il tasso effettivo globale applicato al contratto supera la soglia di usura bancaria per il periodo di stipula, con uno scostamento significativo.`,
+          `L'analisi rileva un caso che presenta forti elementi per un potenziale contenzioso bancario. Il tasso effettivo applicato supera nettamente la soglia di usura, con anomalie su più fronti.`
+        ];
+
+        const tecnicoMap = [
+          `Il TAEG reale calcolato (${tegP}%) è in linea con il TAN dichiarato (${tanP}%) e non supera la soglia di usura BdI (${sogP}%). Il contratto di ${capFmt} appare regolare sotto il profilo del costo del credito.`,
+          `Il TAEG reale calcolato è ${tegP}%, a fronte di un TAN dichiarato del ${tanP}%. La soglia di usura applicabile era ${sogP}%. Lo scostamento (${deltaP > 0 ? '+' : ''}${deltaP} punti percentuali) è nella zona di attenzione ma non ancora sotto soglia usura.`,
+          `Il TAEG reale calcolato è ${tegP}%, a fronte di un TAN dichiarato del ${tanP}%. La soglia di usura applicabile era ${sogP}%, con uno scostamento di ${deltaP > 0 ? '+' : ''}${deltaP} punti percentuali. Sono stati rilevati fattori che incidono sul costo reale del credito non sempre trasparenti nella documentazione contrattuale.`,
+          `Il TAEG reale calcolato è ${tegP}%, a fronte di un TAN dichiarato del ${tanP}%. La soglia di usura applicabile era ${sogP}%, superata di ${Math.abs(deltaP)} punti percentuali. Questo significa che il contratto di ${capFmt} potrebbe essere soggetto a contestazione formale per usura bancaria.`,
+          `Il TAEG reale calcolato è ${tegP}%, a fronte di un TAN dichiarato del ${tanP}%). La soglia di usura applicabile era ${sogP}%, superata di ben ${Math.abs(deltaP)} punti percentuali. Sono presenti anomalie su più livelli di analisi (TEG, fattori accessori, potenzialmente moratori e/o anatocismo).`
+        ];
+
+        const azioneMap = [
+          `Conserva la documentazione contrattuale. Qualora la tua situazione finanziaria dovesse cambiare, potresti richiedere una rinegoziazione del tasso con la banca. Non sono necessarie azioni urgenti.`,
+          `Ti consigliamo di raccogliere la documentazione completa (contratto originale, piano di ammortamento, estratti conto) e di sottoporla a un consulente specializzato in diritto bancario per una valutazione approfondita. La consulenza preventiva ha costi contenuti rispetto al rischio di perdere il diritto all'azione legale.`,
+          `Richiedi alla banca copia del contratto integrale e del piano di ammortamento originale. Conserva tutti gli estratti conto. Valuta una perizia tecnica da parte di un CTU (Consulente Tecnico d'Ufficio) o di uno studio legale specializzato in contenzioso bancario. I tempi di prescrizione possono essere determinanti.`,
+          `Agisci con urgenza: le azioni legali per usura bancaria sono soggette a termini di prescrizione. Rivolgiti immediatamente a un avvocato specializzato in diritto bancario o a un'associazione di consumatori. Richiedi alla banca, tramite PEC o raccomandata A/R, copia integrale di tutta la documentazione contrattuale. Una perizia di un CTU è il passo successivo prima di qualsiasi azione giudiziaria.`,
+          `Questo è un caso prioritario. Consulta immediatamente un avvocato specializzato in contenzioso bancario. La forza del caso rende probabile la possibilità di ottenere: riduzione del debito residuo, restituzione di somme pagate in eccesso, eventuale nullità delle clausole usurarie. Non comunicare con la banca senza assistenza legale.`
+        ];
+
+        s('r-narr-intro',     introMap[sc]    || introMap[0]);
+        s('r-narr-tecnico',   tecnicoMap[sc]  || tecnicoMap[0]);
+        s('r-narr-azione',    azioneMap[sc]   || azioneMap[0]);
+        s('r-narr-disclaimer','Questa sezione è redatta in linguaggio accessibile a fini informativi. Non costituisce parere legale né perizia tecnica. Per qualsiasi azione giudiziaria o stragiudiziale è necessario rivolgersi a un professionista qualificato.');
+
+        // Adatta il titolo della sezione se ci sono moratori/anatocismo
+        const m = data.moratori;
+        const a = data.anatocismo;
+        if ((m && m.applicabile && m.score_moratori >= 2) || (a && a.applicabile && a.score_anatocismo >= 2)) {
+          s('r-narr-titolo', 'Cosa Significa Questo Risultato? (Analisi multi-livello)');
+        }
+      })();
 
       // ── QR Code ──────────────────────────────────────────────────────────
       try {

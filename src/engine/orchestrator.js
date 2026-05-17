@@ -125,7 +125,8 @@ async function esegui_analisi(db, payload) {
         ['soglia_usura',            'REAL'],    ['score_finale',          'INTEGER'],
         ['usura_rilevata',          'INTEGER'], ['fattori_json',          'TEXT'],
         ['voci_json',               'TEXT'],    ['anatocismo_json',       'TEXT'],
-        ['moratori_json',           'TEXT'],    ['mora_contrattuale_perc','REAL']
+        ['moratori_json',           'TEXT'],    ['mora_contrattuale_perc','REAL'],
+        ['ref_cliente',             'TEXT']
       ];
       for (const [col, tipo] of nuoveCols) {
         if (!colNames.includes(col)) {
@@ -140,18 +141,19 @@ async function esegui_analisi(db, payload) {
       const usura_int       = (score_result.score >= 3) ? 1 : 0;
       const tan_dec         = typeof tan_dichiarato === 'number' ? tan_dichiarato : parseFloat(tan_dichiarato);
       const mora_val        = payload.mora_contrattuale_perc != null ? parseFloat(payload.mora_contrattuale_perc) : null;
+      const ref_cliente_val = payload.ref_cliente || null;
 
       db.run(
         `INSERT OR REPLACE INTO audit_analisi
          (analisi_id, contratto_id, hash_catena, versione_engine, dataset_soglie, timestamp_analisi,
           tipo_contratto, data_stipula, capitale, tan_dichiarato, durata_mesi,
           teg_reale, soglia_usura, score_finale, usura_rilevata,
-          fattori_json, voci_json, anatocismo_json, moratori_json, mora_contrattuale_perc)
-         VALUES (?,?,?,'1.3.0','seed_v2',datetime('now'),?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          fattori_json, voci_json, anatocismo_json, moratori_json, mora_contrattuale_perc, ref_cliente)
+         VALUES (?,?,?,'1.3.0','seed_v2',datetime('now'),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [contratto_id, contratto_id, hash_catena,
          tipo_contratto, data_stipula || null, capitale, tan_dec, parseInt(durata_mesi) || 84,
          irr_result.irr_annuale, soglia_decimale, score_result.score, usura_int,
-         fattori_json, voci_json, anatocismo_json, moratori_json, mora_val]
+         fattori_json, voci_json, anatocismo_json, moratori_json, mora_val, ref_cliente_val]
       );
       console.log('  ✅ Audit salvato con dati archivio');
     } catch (dbErr) {
@@ -160,6 +162,7 @@ async function esegui_analisi(db, payload) {
 
     return {
       contratto_id,
+      ref_cliente:          payload.ref_cliente || null,
       teg:                  irr_result.irr_annuale,
       soglia:               soglia_decimale,
       score:                score_result.score,

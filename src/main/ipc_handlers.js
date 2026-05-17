@@ -189,6 +189,7 @@ function setupIpcHandlers() {
 
       // ── Sheet 1: Riepilogo ───────────────────────────────────────────────
       const sheet1 = pratiche.map(p => ({
+        'Cliente / Riferimento': p.ref_cliente || '',
         'ID Pratica':       p.analisi_id || '',
         'Data Analisi':     p.timestamp_analisi ? p.timestamp_analisi.substring(0,10) : '',
         'Tipo Contratto':   (p.tipo_contratto||'').replace(/_/g,' ').toUpperCase(),
@@ -589,7 +590,7 @@ function setupIpcHandlers() {
     }
   });
 
-  console.log('✅ IPC Handlers registrati (18 canali — v1.2.0)');
+  console.log('✅ IPC Handlers registrati (18 canali — v1.3.0)');
 }
 
 module.exports = { setupIpcHandlers };

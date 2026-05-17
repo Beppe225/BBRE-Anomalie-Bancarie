@@ -10,7 +10,7 @@
   <div class="app-container">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo">BBRE <span class="version">v1.2.0</span></div>
+      <div class="logo">BBRE <span class="version">v1.3.0</span></div>
       <nav>
         <button onclick="app.nav('nuova')">+ Nuova Pratica</button>
         <button onclick="app.nav('archivio')">Archivio</button>
@@ -89,7 +89,17 @@
           </div>
           <div class="form-group">
             <label>TAN Dichiarato (%)</label>
-            <input type="number" id="tan" step="0.01" required placeholder="Es. 7.00">
+            <input type="number" id="tan" step="0.01" required placeholder="Es. 7.00" oninput="app.aggiornataRataStimata()">
+          </div>
+          <div class="form-group">
+            <label>Durata (mesi) <span style="color:#666; font-size:11px; font-weight:normal;">— default 84 (7 anni)</span></label>
+            <input type="number" id="durata" step="1" min="6" max="480" value="84" placeholder="Es. 240" oninput="app.aggiornataRataStimata()">
+            <div id="rata-stimata" style="font-size:11px; color:#888; margin-top:4px; min-height:16px;"></div>
+          </div>
+          <div class="form-group">
+            <label>Cliente / Riferimento Pratica <span style="color:#666; font-size:11px; font-weight:normal;">(opzionale)</span></label>
+            <input type="text" id="ref_cliente" placeholder="Es. Mario Rossi — Mutuo via Roma 12" maxlength="120"
+                   style="font-size:13px;">
           </div>
           <button type="button" class="btn-primary" onclick="app.goToStep(2)">Avanti →</button>
         </form>
