@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -10,13 +10,13 @@
   <div class="app-container">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo">BBRE <span class="version">v1.0.1</span></div>
+      <div class="logo">BBRE <span class="version">v1.1.0</span></div>
       <nav>
         <button onclick="app.nav('nuova')">+ Nuova Pratica</button>
         <button onclick="app.nav('archivio')">Archivio</button>
         <button onclick="app.nav('impostazioni')">Impostazioni</button>
       </nav>
-      
+
       <!-- Market Widget -->
       <div id="market-widget" class="market-widget">
         <h3>📈 Tassi di Riferimento</h3>
@@ -34,12 +34,12 @@
 
     <!-- Main Content -->
     <main class="content">
-      
+
       <!-- STEP 1: Contratto -->
       <section id="step-1" class="step active">
         <h2>Dati Contratto</h2>
 
-        <!-- ── Sessione E: pulsante parser LLM ── -->
+        <!-- Sessione E: Parser LLM -->
         <div style="background:#1a1a1a; border:1px solid #333; border-radius:6px;
                     padding:14px 16px; margin-bottom:18px; display:flex;
                     align-items:center; gap:14px; flex-wrap:wrap;">
@@ -67,7 +67,6 @@
           </div>
         </div>
         <div id="parser-msg" style="font-size:12px; min-height:16px; margin-bottom:12px; color:#aaa;"></div>
-        <!-- ── Fine parser LLM ── -->
 
         <form id="form-contratto" onsubmit="return false;">
           <div class="form-group">
@@ -94,19 +93,41 @@
         </form>
       </section>
 
-      <!-- STEP 2: Costi -->
+      <!-- STEP 2: Costi + Mora -->
       <section id="step-2" class="step">
         <h2>Voci di Costo</h2>
         <div class="cost-actions">
           <button onclick="app.addCost('Istruttoria')" class="btn-small">+ Istruttoria</button>
           <button onclick="app.addCost('Polizza')" class="btn-small">+ Polizza</button>
           <button onclick="app.addCost('Perizia')" class="btn-small">+ Perizia</button>
+          <button onclick="app.addCost('Spese Notarili')" class="btn-small">+ Spese Notarili</button>
+          <button onclick="app.addCost('Commissioni')" class="btn-small">+ Commissioni</button>
         </div>
         <table class="cost-table">
           <thead><tr><th>Voce</th><th>Importo</th><th>Inclusa TEG?</th><th></th></tr></thead>
           <tbody id="cost-list"><tr><td colspan="4" style="text-align:center;color:#666;">Nessuna voce</td></tr></tbody>
         </table>
-        <div class="actions">
+
+        <!-- Sessione H: Campo Interessi Moratori -->
+        <div style="background:#1a1a1a; border:1px solid #333; border-radius:6px;
+                    padding:14px 16px; margin-top:18px;">
+          <div style="color:#c9a227; font-size:13px; font-weight:bold; margin-bottom:6px;">
+            ⚖️ Interessi Moratori <span style="color:#666; font-size:11px; font-weight:normal;">(opzionale)</span>
+          </div>
+          <div style="color:#888; font-size:11px; margin-bottom:12px; line-height:1.5;">
+            Se il contratto prevede interessi di mora, inserisci il tasso per l'analisi usura moratoria
+            (Cass. 14899/2017 · Cass. SU 24675/2022). Lascia vuoto per saltare.
+          </div>
+          <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+            <label style="color:#ccc; font-size:13px; white-space:nowrap;">Tasso Mora (%)</label>
+            <input type="number" id="mora-perc" step="0.01" min="0" max="100"
+                   placeholder="Es. 9.50"
+                   style="width:130px; padding:8px 10px; background:#222; border:1px solid #444;
+                          color:#fff; font-size:14px; border-radius:4px;">
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:18px;">
           <button class="btn-secondary" onclick="app.goToStep(1)">← Indietro</button>
           <button class="btn-primary" onclick="app.runAnalysis()">🚀 Esegui Analisi</button>
         </div>
@@ -138,11 +159,17 @@
             </table>
           </div>
         </div>
+
+        <!-- Sezione Moratori (Sessione H) — popolata da app.js -->
+        <div id="moratori-section" style="display:none;"></div>
+
+        <!-- Sezione Anatocismo (Sessione F) — popolata da app.js -->
+        <div id="anatocismo-section" style="display:none;"></div>
       </section>
 
-      <!-- Sezioni extra (Archivio/Impostazioni) -->
-      <section id="step-archivio" class="step"><h2>📂 Archivio</h2><p>In costruzione...</p></section>
-      <section id="step-impostazioni" class="step"><h2>⚙️ Impostazioni</h2><p>In costruzione...</p></section>
+      <!-- Archivio / Impostazioni (contenuto iniettato da app.js) -->
+      <section id="step-archivio"    class="step"><h2>📂 Archivio</h2><p>Caricamento...</p></section>
+      <section id="step-impostazioni" class="step"><h2>⚙️ Impostazioni</h2><p>Caricamento...</p></section>
 
     </main>
   </div>

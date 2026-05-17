@@ -1,43 +1,118 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Report BBRE</title>
+  <title>Report BBRE — Anomalie Bancarie</title>
   <style>
-    @page { size: A4; margin: 1.5cm; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; color: #000; line-height: 1.4; }
-    h1, h2, h3 { color: #111; border-bottom: 2px solid #000; padding-bottom: 5px; }
-    
-    .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
-    .header h1 { margin: 0; border: none; font-size: 24pt; }
-    .header p { margin: 5px 0; color: #555; }
+    @page { size: A4; margin: 1.5cm 1.8cm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #000;
+      line-height: 1.45;
+      font-size: 10pt;
+      background: #fff;
+    }
+    h1 { font-size: 18pt; margin: 0; border: none; }
+    h2 { font-size: 12pt; color: #111; border-bottom: 2px solid #000; padding-bottom: 4px; margin: 18px 0 8px; }
+    h3 { font-size: 10pt; margin: 10px 0 5px; }
 
-    .score-badge { font-size: 24pt; font-weight: bold; border: 3px solid #000; padding: 10px 20px; display: inline-block; margin: 20px 0; }
-    
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10pt; }
-    th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-    th { background-color: #eee; }
-    tr:nth-child(even) { background-color: #f9f9f9; }
+    /* Header */
+    .header {
+      text-align: center;
+      border-bottom: 3px solid #000;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+    .header .subtitle { font-size: 11pt; color: #333; margin: 4px 0; }
+    .header .meta     { font-size: 9pt;  color: #555; margin: 3px 0; }
 
-    .disclaimer { margin-top: 50px; padding: 15px; border: 1px solid #000; font-size: 8pt; background: #fff; }
-    .audit { font-family: monospace; font-size: 9pt; word-break: break-all; }
+    /* Score badge */
+    .score-badge {
+      display: inline-block;
+      border: 3px solid #000;
+      padding: 8px 22px;
+      font-size: 18pt;
+      font-weight: bold;
+      margin: 8px 0 16px;
+      letter-spacing: 1px;
+    }
+    .score-0 { border-style: dashed; }
+    .score-1 { border-style: dashed; }
+    .score-2 { border-style: solid;  background: #f0f0f0; }
+    .score-3 { border-style: solid;  background: #ddd; }
+    .score-4 { border-style: solid;  background: #aaa; font-style: italic; }
 
-    /* QR Code area */
-    #qrcode { text-align: center; margin-top: 20px; }
+    /* Griglia 2 colonne */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+    /* Tabelle */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 9.5pt; }
+    th, td { border: 1px solid #555; padding: 6px 8px; text-align: left; }
+    th { background: #e8e8e8; font-weight: bold; }
+    tr:nth-child(even) td { background: #f8f8f8; }
+
+    /* Box info */
+    .box {
+      border: 1px solid #000;
+      border-radius: 3px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .box-label { font-size: 8pt; text-transform: uppercase; color: #555; margin-bottom: 3px; }
+    .box-value { font-size: 15pt; font-weight: bold; }
+    .box-sub   { font-size: 8pt; color: #555; margin-top: 2px; }
+
+    /* Alert banner */
+    .alert {
+      border: 1.5px solid #000;
+      border-radius: 2px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      font-size: 9pt;
+      background: #f0f0f0;
+    }
+    .alert.warning { background: #e8e8e8; font-weight: bold; }
+
+    /* Score colors B/N via pattern (hatching via border) */
+    .anomalia-si  { font-weight: bold; text-decoration: underline; }
+    .anomalia-no  { color: #333; }
+
+    /* Sezioni opzionali */
+    .sezione-opzionale { page-break-inside: avoid; }
+
+    /* Disclaimer / Audit */
+    .disclaimer {
+      margin-top: 30px;
+      padding: 12px;
+      border: 1px solid #000;
+      font-size: 8pt;
+      background: #f9f9f9;
+      page-break-inside: avoid;
+    }
+    .audit { font-family: monospace; font-size: 8pt; word-break: break-all; }
+
+    /* QR */
+    #qrcode { text-align: center; margin-top: 12px; }
+
+    /* Print */
+    @media print {
+      .no-print { display: none !important; }
+    }
   </style>
-  <!-- Libreria leggera per QR Code lato client -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </head>
 <body>
 
+  <!-- INTESTAZIONE -->
   <div class="header">
     <h1>BBRE — Anomalie Bancarie</h1>
-    <p>Report di Analisi TEG / Usura</p>
-    <p>Data Generazione: <span id="data-gen"></span></p>
+    <p class="subtitle">Report di Analisi TEG / Usura / Anatocismo / Moratori</p>
+    <p class="meta">Data Generazione: <span id="data-gen"></span> &nbsp;|&nbsp; Versione Engine: <span id="r-versione"></span></p>
   </div>
 
-  <!-- SEZIONE 1: DATI CONTRATTO -->
+  <!-- 1. DATI CONTRATTO -->
   <h2>1. Dati Contratto</h2>
   <div class="grid-2">
     <div>
@@ -52,97 +127,259 @@
     </div>
   </div>
 
-  <!-- SEZIONE 2: RISULTATI ANALISI -->
-  <h2>2. Risultati TEG & Soglia</h2>
-  <div style="text-align:center;">
-    <div class="score-badge">SCORE RISCHIO: <span id="r-score"></span>/4</div>
+  <!-- 2. RISULTATI TEG / USURA -->
+  <h2>2. Risultati TEG & Soglia Usura</h2>
+  <div style="text-align:center; margin-bottom:14px;">
+    <div class="score-badge" id="r-score-badge">SCORE RISCHIO: <span id="r-score"></span>/4</div>
+    <p style="font-size:10pt; font-style:italic;" id="r-score-label"></p>
+    <p style="font-size:9pt; color:#555;">Affidabilità analisi: <span id="r-affidabilita"></span> &nbsp;|&nbsp; Orientamento: <span id="r-orientamento"></span></p>
   </div>
-  <table>
-    <tr><th>Indicatore</th><th>Valore</th></tr>
-    <tr><td>TAN Dichiarato</td><td id="r-tan-val"></td></tr>
-    <tr><td>TAEG Effettivo (Calcolato)</td><td id="r-taeg-val"></td></tr>
-    <tr><td>Soglia Usura (Rif. BdI)</td><td id="r-soglia-val"></td></tr>
-    <tr><td>Scostamento</td><td id="r-scostamento"></td></tr>
-  </table>
+  <div class="grid-3">
+    <div class="box">
+      <div class="box-label">TAN Dichiarato</div>
+      <div class="box-value" id="r-tan-val">—</div>
+    </div>
+    <div class="box">
+      <div class="box-label">TAEG Effettivo (Calcolato)</div>
+      <div class="box-value" id="r-taeg-val">—</div>
+    </div>
+    <div class="box">
+      <div class="box-label">Soglia Usura BdI</div>
+      <div class="box-value" id="r-soglia-val">—</div>
+      <div class="box-sub" id="r-scostamento-label"></div>
+    </div>
+  </div>
 
-  <!-- SEZIONE 3: SCHEDA FATTORI -->
-  <h2>3. Scheda Fattori (Audit)</h2>
-  <table id="r-fattori-table">
+  <!-- 3. SCHEDA FATTORI -->
+  <h2>3. Scheda Fattori Analisi (F1–F6)</h2>
+  <table>
     <thead>
-      <tr><th>ID</th><th>Fattore</th><th>Valore</th><th>Peso</th></tr>
+      <tr><th>ID</th><th>Fattore</th><th>Valore / Rilevazione</th><th>Impatto</th></tr>
     </thead>
-    <tbody id="r-fattori-body">
-      <!-- Popolato via JS -->
-    </tbody>
+    <tbody id="r-fattori-body"></tbody>
   </table>
 
-  <!-- SEZIONE 4: VOCI DI COSTO ANALIZZATE -->
-  <h2>4. Dettaglio Costi Inclusi/Esclusi</h2>
+  <!-- 4. DETTAGLIO COSTI -->
+  <h2>4. Dettaglio Voci di Costo</h2>
   <table>
-    <thead><tr><th>Voce</th><th>Importo</th><th>Incluso TEG?</th><th>Regola</th></tr></thead>
+    <thead><tr><th>Voce</th><th>Importo</th><th>Inclusa TEG?</th><th>Nota</th></tr></thead>
     <tbody id="r-costi-body"></tbody>
   </table>
 
-  <!-- SEZIONE 5: AUDIT & DISCLAIMER -->
+  <!-- 5. MORATORI (condizionale) -->
+  <div id="sezione-moratori" class="sezione-opzionale" style="display:none;">
+    <h2>5. Analisi Interessi Moratori</h2>
+    <div class="alert" id="r-mora-alert"></div>
+    <div class="grid-3">
+      <div class="box">
+        <div class="box-label">Score Moratori</div>
+        <div class="box-value" id="r-mora-score">—</div>
+        <div class="box-sub" id="r-mora-label">—</div>
+      </div>
+      <div class="box">
+        <div class="box-label">Mora Contrattuale</div>
+        <div class="box-value" id="r-mora-perc">—</div>
+        <div class="box-sub" id="r-mora-soglia-label">—</div>
+      </div>
+      <div class="box">
+        <div class="box-label">Delta vs Soglia Moratoria</div>
+        <div class="box-value" id="r-mora-delta">—</div>
+        <div class="box-sub">Spread normativo: +2,1pp</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Fattore</th><th>Valore</th><th>Impatto</th></tr></thead>
+      <tbody id="r-mora-fattori"></tbody>
+    </table>
+    <p style="font-size:8pt; color:#555;" id="r-mora-rif"></p>
+  </div>
+
+  <!-- 6. ANATOCISMO (condizionale) -->
+  <div id="sezione-anatocismo" class="sezione-opzionale" style="display:none;">
+    <h2 id="r-anat-titolo">6. Analisi Ammortamento alla Francese (Anatocismo)</h2>
+    <div class="alert warning">
+      ⚠️ ORIENTAMENTO GIURISPRUDENZIALE DIVISO — Cass. 2232/2020 (no anatocismo) vs Cass. SU 15130/2024 (effetto anatocistico presente).
+      Il presente risultato è esclusivamente indicativo. Non sostituisce una perizia tecnica.
+    </div>
+    <div class="grid-3">
+      <div class="box">
+        <div class="box-label">Score Anatocismo</div>
+        <div class="box-value" id="r-anat-score">—</div>
+        <div class="box-sub" id="r-anat-label">—</div>
+      </div>
+      <div class="box">
+        <div class="box-label">Delta Stimato (€)</div>
+        <div class="box-value" id="r-anat-delta-euro">—</div>
+        <div class="box-sub" id="r-anat-delta-pct">—</div>
+      </div>
+      <div class="box">
+        <div class="box-label">Interessi Francese vs Puro</div>
+        <div class="box-value" style="font-size:10pt;" id="r-anat-confronto">—</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Fattore</th><th>Valore</th><th>Impatto</th></tr></thead>
+      <tbody id="r-anat-fattori"></tbody>
+    </table>
+  </div>
+
+  <!-- 7. AUDIT & DISCLAIMER -->
   <div class="disclaimer">
     <h3>⚠️ Disclaimer & Audit Trail</h3>
-    <p>Questo report è generato automaticamente dal software BBRE. I valori della soglia di usura sono basati sui dati Banca d'Italia importati al momento dell'analisi.</p>
-    <p><strong>Audit Hash:</strong> <span id="r-hash" class="audit"></span></p>
-    <p><strong>Versione Engine:</strong> <span id="r-versione"></span></p>
-    <p><strong>Timestamp Analisi:</strong> <span id="r-timestamp"></span></p>
+    <p>
+      Questo report è generato automaticamente da BBRE — Anomalie Bancarie.
+      I valori della soglia di usura sono basati sui dati Banca d'Italia (D.M. trimestrali).
+      L'analisi è a fini informativi e di supporto decisionale: <strong>non sostituisce una perizia tecnica
+      redatta da un esperto qualificato per uso giudiziario</strong>.
+    </p>
+    <p><strong>Audit Hash (SHA-256):</strong> <span id="r-hash" class="audit"></span></p>
+    <p><strong>Versione Engine:</strong> <span id="r-versione-footer"></span> &nbsp;|&nbsp;
+       <strong>Timestamp:</strong> <span id="r-timestamp"></span></p>
   </div>
 
   <!-- QR CODE -->
   <div id="qrcode"></div>
 
   <script>
-    // Funzione che riceve i dati dal Node.js e popola il template
     window.renderReport = function(data) {
-      document.getElementById('data-gen').innerText = new Date().toLocaleDateString('it-IT');
-      document.getElementById('r-id').innerText = data.contratto_id;
-      document.getElementById('r-tipo').innerText = data.tipo_contratto;
-      document.getElementById('r-data').innerText = data.data_stipula;
-      document.getElementById('r-capitale').innerText = data.capitale.toFixed(2);
-      document.getElementById('r-tan').innerText = (data.tan_dichiarato * 100).toFixed(2);
-     document.getElementById('r-rate').innerText = data.durata_mesi || 'N/D';
+      // Helper sicuro
+      const s = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val != null ? String(val) : '—'; };
+      const fmt = (n, dec) => (n != null && !isNaN(n)) ? parseFloat(n).toFixed(dec) : '—';
 
-      document.getElementById('r-score').innerText = data.score;
-      document.getElementById('r-tan-val').innerText = (data.tan_dichiarato * 100).toFixed(2) + '%';
-      document.getElementById('r-taeg-val').innerText = (data.teg * 100).toFixed(4) + '%';
-       const sogliaPerc = data.soglia > 1 ? data.soglia : data.soglia * 100;
-      document.getElementById('r-soglia-val').innerText = sogliaPerc.toFixed(4) + '%';
-      document.getElementById('r-scostamento').innerText = (data.delta_pp !== undefined ? (data.delta_pp > 0 ? '+' : '') + data.delta_pp.toFixed(4) : ((data.teg * 100) - sogliaPerc).toFixed(4)) + 'pp';
+      // ── 1. Header ──────────────────────────────────────────────────────
+      s('data-gen',    new Date().toLocaleDateString('it-IT'));
+      s('r-versione',  '1.3.0');
+      s('r-versione-footer', '1.3.0');
+      s('r-timestamp', new Date().toISOString());
 
-      document.getElementById('r-hash').innerText = data.hash_catena;
-      document.getElementById('r-versione').innerText = '1.0.0';
-      document.getElementById('r-timestamp').innerText = new Date().toISOString();
+      // ── 1. Dati contratto ───────────────────────────────────────────────
+      s('r-id',       data.contratto_id);
+      s('r-tipo',     (data.tipo_contratto||'').replace(/_/g,' ').toUpperCase());
+      s('r-data',     data.data_stipula || '—');
+      s('r-capitale', fmt(data.capitale, 2));
+      s('r-tan',      fmt((data.tan_dichiarato||0)*100, 2));
+      s('r-rate',     data.durata_mesi || '84');
 
-      // Tabella Fattori
-      const fattoriBody = document.getElementById('r-fattori-body');
-      fattoriBody.innerHTML = '';
-      if (data.fattori) {
-  data.fattori.forEach(f => {
-          const label = f.valore_label !== undefined ? f.valore_label : '-';
-          const impatto = f.impatto !== undefined ? f.impatto : '-';
-          fattoriBody.innerHTML += `<tr><td>${f.id}</td><td>${f.nome}</td><td>${label}</td><td>${impatto}</td></tr>`;
+      // ── 2. TEG / Soglia ─────────────────────────────────────────────────
+      const score    = data.score || 0;
+      const badge    = document.getElementById('r-score-badge');
+      if (badge) badge.className = 'score-badge score-' + score;
+      s('r-score',        score);
+      s('r-score-label',  ['Nessuna anomalia rilevata','Zona grigia — dati insufficienti','Anomalia possibile','Anomalia probabile','Caso forte per contenzioso'][score] || '');
+      s('r-affidabilita', data.affidabilita || '—');
+      s('r-orientamento', data.orientamento_giurisp || '—');
+
+      const tegPerc    = (data.teg||0) * 100;
+      const sogliaPerc = data.soglia > 1 ? data.soglia : (data.soglia||0) * 100;
+      const delta      = data.delta_pp != null ? data.delta_pp : (tegPerc - sogliaPerc);
+      s('r-tan-val',    fmt((data.tan_dichiarato||0)*100, 4) + '%');
+      s('r-taeg-val',   fmt(tegPerc, 4) + '%');
+      s('r-soglia-val', fmt(sogliaPerc, 4) + '%');
+      s('r-scostamento-label', 'Scostamento: ' + (delta >= 0 ? '+' : '') + fmt(delta, 4) + 'pp');
+
+      // ── 3. Fattori ──────────────────────────────────────────────────────
+      const fb = document.getElementById('r-fattori-body');
+      if (fb && data.fattori) {
+        fb.innerHTML = '';
+        data.fattori.forEach(f => {
+          fb.innerHTML += `<tr>
+            <td style="font-weight:bold;color:#333;">${f.id||''}</td>
+            <td>${f.nome||''}</td>
+            <td>${f.valore_label||''}</td>
+            <td>${f.impatto||''}</td>
+          </tr>`;
         });
       }
 
-      // Tabella Costi
-      const costiBody = document.getElementById('r-costi-body');
-      costiBody.innerHTML = '';
-      if (data.voci) {
-        data.voci.forEach(v => {
-          const inclusa = v.inclusa_teg === true || v.inclusa === true;
-costiBody.innerHTML += `<tr><td>${v.voce}</td><td>€ ${v.importo.toFixed(2)}</td><td>${inclusa ? 'SÌ' : 'NO'}</td><td>${v.motivazione || '-'}</td></tr>`;
-        });
+      // ── 4. Costi ────────────────────────────────────────────────────────
+      const cb = document.getElementById('r-costi-body');
+      if (cb) {
+        cb.innerHTML = '';
+        const vociSrc = data.voci_analizzate || data.voci || [];
+        if (vociSrc.length === 0) {
+          cb.innerHTML = '<tr><td colspan="4" style="color:#666;">Nessuna voce inserita</td></tr>';
+        } else {
+          vociSrc.forEach(v => {
+            const inclusa = !!(v.inclusa_teg || v.inclusa);
+            cb.innerHTML += `<tr>
+              <td>${v.voce||''}</td>
+              <td>€ ${fmt(v.importo, 2)}</td>
+              <td class="${inclusa?'anomalia-si':'anomalia-no'}">${inclusa ? 'SÌ' : 'NO'}</td>
+              <td style="font-size:8.5pt;color:#555;">${v.motivazione||'—'}</td>
+            </tr>`;
+          });
+        }
       }
 
-      // QR Code (Link fittizio di verifica)
-      const qr = qrcode(0, 'L');
-      qr.addData(`bbre://verify/${data.hash_catena}`);
-      qr.make();
-      document.getElementById('qrcode').innerHTML = qr.createSvgTag(4);
+      // ── 5. Moratori ─────────────────────────────────────────────────────
+      const m = data.moratori;
+      if (m && m.applicabile) {
+        document.getElementById('sezione-moratori').style.display = 'block';
+        const mAlert = document.getElementById('r-mora-alert');
+        if (mAlert) {
+          mAlert.className = 'alert' + (m.supera_soglia_mora ? ' warning' : '');
+          mAlert.innerHTML = m.supera_soglia_mora
+            ? `⚠️ MORA SOPRA SOGLIA USURA MORATORIA — Delta: <strong>+${fmt(m.delta_mora_pp,2)}pp</strong>. ${m.disclaimer}`
+            : `✓ Mora contrattuale (${fmt(m.mora_contrattuale_perc,2)}%) sotto la soglia moratoria (${fmt(m.soglia_mora_perc,2)}%). ${m.disclaimer}`;
+        }
+        s('r-mora-score', m.score_moratori + '/3');
+        s('r-mora-label', m.label_moratori || '');
+        s('r-mora-perc',  fmt(m.mora_contrattuale_perc, 2) + '%');
+        s('r-mora-soglia-label', 'Soglia moratoria: ' + fmt(m.soglia_mora_perc, 2) + '%');
+        s('r-mora-delta', (m.delta_mora_pp >= 0 ? '+' : '') + fmt(m.delta_mora_pp, 2) + 'pp');
+
+        const mfb = document.getElementById('r-mora-fattori');
+        if (mfb && m.fattori_moratori) {
+          mfb.innerHTML = '';
+          m.fattori_moratori.forEach(f => {
+            mfb.innerHTML += `<tr>
+              <td style="font-weight:bold;">${f.id||''}</td>
+              <td>${f.nome||''}</td>
+              <td>${f.valore_label||''}</td>
+              <td>${f.impatto||''}</td>
+            </tr>`;
+          });
+        }
+        s('r-mora-rif', 'Riferimenti: ' + (m.riferimenti_normativi||[]).join(' · '));
+      }
+
+      // ── 6. Anatocismo ────────────────────────────────────────────────────
+      const a = data.anatocismo;
+      if (a && a.applicabile) {
+        document.getElementById('sezione-anatocismo').style.display = 'block';
+        // Aggiusta titolo se moratori presenti (diventa sezione 7)
+        if (m && m.applicabile) s('r-anat-titolo', '7. Analisi Ammortamento alla Francese (Anatocismo)');
+
+        s('r-anat-score',      a.score_anatocismo + '/3');
+        s('r-anat-label',      a.label_anatocismo || '');
+        s('r-anat-delta-euro', '€ ' + fmt(a.delta_euro, 2));
+        s('r-anat-delta-pct',  fmt(a.delta_pct, 4) + '% su tot. interessi');
+        s('r-anat-confronto',  'Francese: €' + fmt(a.totale_interessi_francese,2) + ' | Puro: €' + fmt(a.totale_interessi_puro,2));
+
+        const afb = document.getElementById('r-anat-fattori');
+        if (afb && a.fattori_anatocismo) {
+          afb.innerHTML = '';
+          a.fattori_anatocismo.forEach(f => {
+            afb.innerHTML += `<tr>
+              <td style="font-weight:bold;">${f.id||''}</td>
+              <td>${f.nome||''}</td>
+              <td>${f.valore_label||''}</td>
+              <td>${f.impatto||''}</td>
+            </tr>`;
+          });
+        }
+      }
+
+      // ── Audit / Hash ────────────────────────────────────────────────────
+      s('r-hash', data.hash_catena || '—');
+
+      // ── QR Code ──────────────────────────────────────────────────────────
+      try {
+        const qr = qrcode(0, 'L');
+        qr.addData('bbre://verify/' + (data.hash_catena || 'noHash'));
+        qr.make();
+        document.getElementById('qrcode').innerHTML = qr.createSvgTag(3);
+      } catch (e) {}
     };
   </script>
 </body>

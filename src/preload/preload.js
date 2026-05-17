@@ -6,7 +6,10 @@ const CANALI_VALIDI = [
   'genera-report', 'export-csv', 'export-piano-anatocismo',
   'backup-db', 'get-config', 'controlla-aggiornamenti-soglie',
   // Sessione E — Parser LLM
-  'carica-documento', 'apri-dialog-file', 'salva-config-llm', 'get-config-llm', 'elimina-analisi', 'get-market-data', 'get-app-version', 'controlla-aggiornamenti-manuali'
+  'carica-documento', 'apri-dialog-file', 'salva-config-llm', 'get-config-llm',
+  'elimina-analisi', 'get-market-data', 'get-app-version', 'controlla-aggiornamenti-manuali',
+  // Sessione G — Export Excel
+  'export-excel'
 ];
 
 contextBridge.exposeInMainWorld('electronAPI', {

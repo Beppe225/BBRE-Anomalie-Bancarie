@@ -128,7 +128,13 @@ window.app = {
     try {
       const payload = {
         ...AppState.contratto,
-        voci: AppState.costi.map(c => ({ voce: c.voce, importo: c.importo, inclusa_teg: c.inclusa }))
+        voci: AppState.costi.map(c => ({ voce: c.voce, importo: c.importo, inclusa_teg: c.inclusa })),
+        mora_contrattuale_perc: (() => {
+          const el = document.getElementById('mora-perc');
+          if (!el || !el.value.trim()) return null;
+          const v = parseFloat(el.value);
+          return isNaN(v) || v <= 0 ? null : v;
+        })()
       };
       console.log('📤 Payload inviato:', payload);
       const result = await window.electronAPI.invoke('esegui-analisi', payload);
@@ -297,6 +303,84 @@ window.app = {
       anatEl.innerHTML = '';
       anatEl.style.display = 'none';
     }
+
+    // ── SEZIONE MORATORI (Sessione H) ──────────────────────────────────────
+    const morEl = document.getElementById('moratori-section');
+    if (morEl && data.moratori && data.moratori.applicabile) {
+      const m = data.moratori;
+      const mScoreColors = { 0: '#4dff88', 1: '#ffd700', 2: '#ff8c00', 3: '#ff4d4d' };
+      const mColor = mScoreColors[m.score_moratori] || '#fff';
+
+      let mFattoriHtml = '';
+      (m.fattori_moratori || []).forEach(f => {
+        mFattoriHtml += `<tr>
+          <td style="padding:6px;color:#c9a227;font-weight:bold;">${f.id}</td>
+          <td style="padding:6px;">${f.nome}</td>
+          <td style="padding:6px;font-size:12px;">${f.valore_label}</td>
+          <td style="padding:6px;">${f.impatto}</td>
+        </tr>`;
+      });
+
+      const borderColor = m.supera_soglia_mora ? '#ff4d4d' : '#555';
+
+      morEl.innerHTML = `
+        <div style="margin-top:20px;border:1px solid ${borderColor};border-radius:6px;overflow:hidden;">
+          <div onclick="app.toggleMoratori()"
+               style="background:#1a1a1a;padding:14px 18px;cursor:pointer;display:flex;
+                      justify-content:space-between;align-items:center;">
+            <span style="color:${m.supera_soglia_mora ? '#ff4d4d' : '#c9a227'};font-weight:bold;font-size:15px;">
+              ⚖️ Analisi Interessi Moratori
+              ${m.supera_soglia_mora ? '<span style="color:#ff4d4d;margin-left:8px;">⚠️ SOPRA SOGLIA</span>' : ''}
+            </span>
+            <span style="color:#c9a227;" id="moratori-toggle">▼ Espandi</span>
+          </div>
+          <div id="moratori-body" style="display:none;padding:18px;background:#161616;">
+
+            <div style="background:#1a1a00;border:1px solid #444;border-radius:4px;
+                        padding:10px 12px;margin-bottom:14px;font-size:12px;color:#ccc;">
+              ⚠️ ${m.disclaimer}
+            </div>
+
+            <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;">
+              <div style="background:#1e1e1e;padding:12px 18px;border-radius:6px;border:1px solid #333;
+                          min-width:130px;text-align:center;">
+                <div style="color:#888;font-size:10px;text-transform:uppercase;margin-bottom:4px;">Score Moratori</div>
+                <div style="font-size:34px;font-weight:bold;color:${mColor};">${m.score_moratori}<span style="font-size:15px;color:#666;">/3</span></div>
+                <div style="font-size:11px;color:${mColor};margin-top:3px;">${m.label_moratori}</div>
+              </div>
+              <div style="background:#1e1e1e;padding:12px 18px;border-radius:6px;border:1px solid #333;min-width:200px;">
+                <div style="color:#888;font-size:10px;text-transform:uppercase;margin-bottom:6px;">Confronto Tassi</div>
+                <div style="font-size:13px;">Mora contrattuale: <strong style="color:${m.supera_soglia_mora?'#ff4d4d':'#4dff88'}">${m.mora_contrattuale_perc.toFixed(2)}%</strong></div>
+                <div style="font-size:13px;">Soglia moratoria: <strong>${m.soglia_mora_perc.toFixed(2)}%</strong><span style="color:#555;font-size:11px;"> (${m.soglia_teg_perc.toFixed(2)}%+${m.spread_mora_pp}pp)</span></div>
+                <div style="font-size:13px;margin-top:4px;">Delta: <strong style="color:${m.delta_mora_pp>0?'#ff4d4d':'#4dff88'}">${m.delta_mora_pp>0?'+':''}${m.delta_mora_pp.toFixed(2)}pp</strong></div>
+              </div>
+              <div style="background:#1e1e1e;padding:12px 18px;border-radius:6px;border:1px solid #333;min-width:200px;">
+                <div style="color:#888;font-size:10px;text-transform:uppercase;margin-bottom:6px;">TEG Complessivo Simulato</div>
+                <div style="font-size:13px;">TEG usura: <strong>${m.teg_reale_perc.toFixed(4)}%</strong></div>
+                <div style="font-size:13px;">TEG+mora (stima 20%): <strong style="color:${m.supera_soglia_base_complessivo?'#ff4d4d':'#4dff88'}">${m.teg_complessivo_perc.toFixed(4)}%</strong></div>
+              </div>
+            </div>
+
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead><tr style="background:#222;">
+                <th style="padding:7px;color:#c9a227;">ID</th>
+                <th style="padding:7px;color:#c9a227;">Fattore</th>
+                <th style="padding:7px;color:#c9a227;">Valore</th>
+                <th style="padding:7px;color:#c9a227;">Impatto</th>
+              </tr></thead>
+              <tbody>${mFattoriHtml}</tbody>
+            </table>
+            <div style="margin-top:10px;font-size:10px;color:#555;">
+              Riferimenti: ${(m.riferimenti_normativi||[]).join(' · ')}
+            </div>
+          </div>
+        </div>
+      `;
+      morEl.style.display = 'block';
+    } else if (morEl) {
+      morEl.innerHTML = '';
+      morEl.style.display = 'none';
+    }
   },
 
   generatePDF: async () => {
@@ -332,6 +416,27 @@ window.app = {
       body.style.display = 'none';
       if (toggle) toggle.innerText = '▼ Espandi';
     }
+  },
+
+  toggleMoratori: () => {
+    const body   = document.getElementById('moratori-body');
+    const toggle = document.getElementById('moratori-toggle');
+    if (!body) return;
+    if (body.style.display === 'none') {
+      body.style.display = 'block';
+      if (toggle) toggle.innerText = '▲ Comprimi';
+    } else {
+      body.style.display = 'none';
+      if (toggle) toggle.innerText = '▼ Espandi';
+    }
+  },
+
+  exportExcelArchivio: async () => {
+    try {
+      const r = await window.electronAPI.invoke('export-excel');
+      if (r.successo) alert(`✅ Excel esportato (${r.num_pratiche} pratiche):\n${r.path_file}`);
+      else alert('❌ ' + r.errore);
+    } catch (err) { alert('❌ ' + err.message); }
   },
 
   exportPianoCSV: async () => {
@@ -424,12 +529,15 @@ window.app = {
             <tbody>${righe}</tbody>
           </table>
         </div>
-        <div style="margin-top:16px; display:flex; gap:10px;">
+        <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
           <button onclick="app.nav('nuova')" style="padding:10px 20px; background:#c9a227; color:#000; border:none; cursor:pointer; font-weight:bold; border-radius:4px;">
             + Nuova Pratica
           </button>
           <button onclick="app.exportCSVArchivio()" style="padding:10px 20px; background:#333; color:#fff; border:1px solid #555; cursor:pointer; border-radius:4px;">
             📊 Esporta CSV
+          </button>
+          <button onclick="app.exportExcelArchivio()" style="padding:10px 20px; background:#1a4a1a; color:#fff; border:1px solid #2a7a2a; cursor:pointer; border-radius:4px; font-weight:bold;">
+            📋 Esporta Excel (4 sheet)
           </button>
         </div>`;
     } catch (err) {
@@ -458,6 +566,7 @@ window.app = {
       // Normalizza i nomi al formato atteso da showResults (teg, soglia, score)
       const fattoriParsed    = p.fattori_json    ? JSON.parse(p.fattori_json)    : [];
       const anatocismoParsed = p.anatocismo_json ? JSON.parse(p.anatocismo_json) : null;
+      const moratoriParsed   = p.moratori_json   ? JSON.parse(p.moratori_json)   : null;
       AppState.ultimaAnalisi = {
         teg:               parseFloat(p.teg_reale)   || 0,
         soglia:            parseFloat(p.soglia_usura) || 0,
@@ -468,6 +577,7 @@ window.app = {
         delta_pp:          p.teg_reale && p.soglia_usura ? parseFloat(((p.teg_reale - p.soglia_usura)*100).toFixed(2)) : null,
         fattori:           fattoriParsed,
         anatocismo:        anatocismoParsed,
+        moratori:          moratoriParsed,
         orientamento_giurisp: null
       };
       AppState.costi = p.voci_json ? JSON.parse(p.voci_json) : [];
@@ -552,6 +662,14 @@ window.app = {
     // Nascondi sezione anatocismo se presente
     const anatEl = document.getElementById('anatocismo-section');
     if (anatEl) { anatEl.innerHTML = ''; anatEl.style.display = 'none'; }
+
+    // Nascondi sezione moratori se presente (Sessione H)
+    const morEl = document.getElementById('moratori-section');
+    if (morEl) { morEl.innerHTML = ''; morEl.style.display = 'none'; }
+
+    // Reset campo mora
+    const moraEl = document.getElementById('mora-perc');
+    if (moraEl) moraEl.value = '';
 
     // Vai a Step 1
     document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));

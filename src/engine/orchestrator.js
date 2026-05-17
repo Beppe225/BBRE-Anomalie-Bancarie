@@ -1,17 +1,18 @@
 /**
- * orchestrator.js - Coordinatore analisi completa v1.2
- * Fix: polizza_condizionante, soglia normalizzata, durata_mesi
+ * orchestrator.js - Coordinatore analisi completa v1.3.0
+ * Sessione H: Moratori | Fix: polizza_condizionante truthy check
  */
 
-const { calcola_irr } = require('./math/irr_teg');
-const { get_soglia_db } = require('./math/soglia_calculator');
+const { calcola_irr }               = require('./math/irr_teg');
+const { get_soglia_db }             = require('./math/soglia_calculator');
 const { determina_inclusione_voci } = require('./normativa/regole_engine');
-const { calcola_score } = require('./normativa/score_engine');
-const { analizza_anatocismo } = require('./normativa/anatocismo_engine');
-const crypto = require('crypto');
+const { calcola_score }             = require('./normativa/score_engine');
+const { analizza_anatocismo }       = require('./normativa/anatocismo_engine');
+const { analizza_moratori }         = require('./normativa/moratori_engine');
+const crypto                        = require('crypto');
 
 async function esegui_analisi(db, payload) {
-  console.log('🏁 [Orchestrator] Avvio analisi...');
+  console.log('🏁 [Orchestrator v1.3.0] Avvio analisi...');
 
   const {
     contratto_id, tipo_contratto, data_stipula,
@@ -25,15 +26,14 @@ async function esegui_analisi(db, payload) {
 
     // Step 2: Costruisci flussi di cassa
     console.log('📊 Step 2: Costruzione flussi di cassa...');
-    const voci_incluse   = voci_analizzate.filter(v => v.inclusa_teg);
-    const totale_costi   = voci_incluse.reduce((sum, v) => sum + v.importo, 0);
-    const numero_rate    = durata_mesi || 84;
-    const tasso_mensile  = tan_dichiarato / 12;
-    const rata           = tan_dichiarato > 0
+    const voci_incluse  = voci_analizzate.filter(v => v.inclusa_teg);
+    const totale_costi  = voci_incluse.reduce((sum, v) => sum + v.importo, 0);
+    const numero_rate   = durata_mesi || 84;
+    const tasso_mensile = tan_dichiarato / 12;
+    const rata          = tan_dichiarato > 0
       ? (capitale * tasso_mensile) / (1 - Math.pow(1 + tasso_mensile, -numero_rate))
       : capitale / numero_rate;
 
-    // Flusso iniziale: netto erogato (capitale - costi anticipati)
     const flussi = [-(capitale - totale_costi)];
     for (let i = 0; i < numero_rate; i++) flussi.push(rata);
 
@@ -47,8 +47,7 @@ async function esegui_analisi(db, payload) {
     // Step 4: Recupera soglia usura
     console.log('📏 Step 4: Recupero soglia usura...');
     const soglia_record = get_soglia_db(db, data_stipula, tipo_contratto);
-    
-    // Normalizza soglia: il DB la salva in % (es. 6.25), convertiamo in decimale (0.0625)
+
     let soglia_decimale = 0;
     if (soglia_record) {
       const raw = soglia_record.tasso_soglia;
@@ -59,9 +58,10 @@ async function esegui_analisi(db, payload) {
     }
 
     // Step 5: Rileva polizza condizionante
-    // Una polizza è condizionante se è inclusa nel TEG (= obbligatoria per ottenere il credito)
+    // Fix v1.3.0: usa !!v.inclusa_teg (truthy) invece di === true (strict)
     const ha_polizza_condizionante = voci.some(v =>
-      v.inclusa_teg === true &&
+      !!v.inclusa_teg &&
+      typeof v.voce === 'string' &&
       (v.voce.toLowerCase().includes('polizza') || v.voce.toLowerCase().includes('assicurazione'))
     );
     console.log(`  Polizza condizionante: ${ha_polizza_condizionante}`);
@@ -76,11 +76,11 @@ async function esegui_analisi(db, payload) {
     });
     console.log(`  Score: ${score_result.score}/4 | Label: ${score_result.label}`);
 
-    // Step 7: Anatocismo (opzionale — solo ammortamento francese)
+    // Step 7: Anatocismo (solo ammortamento francese)
     let risultato_anatocismo = null;
     const ammortamento_tipo = (payload.ammortamento || 'francese').toLowerCase();
     if (ammortamento_tipo === 'francese' || ammortamento_tipo === '') {
-      console.log('🏦 Step 7: Analisi anatocismo (ammortamento francese)...');
+      console.log('🏦 Step 7: Analisi anatocismo...');
       try {
         risultato_anatocismo = analizza_anatocismo(
           db,
@@ -93,46 +93,65 @@ async function esegui_analisi(db, payload) {
       }
     }
 
+    // Step 7b: Moratori (Sessione H)
+    let risultato_moratori = null;
+    if (payload.mora_contrattuale_perc != null && payload.mora_contrattuale_perc !== '') {
+      console.log('⚖️ Step 7b: Analisi moratori...');
+      try {
+        risultato_moratori = analizza_moratori(db, payload, irr_result.irr_annuale, soglia_decimale);
+        console.log(`  Score Moratori: ${risultato_moratori.score_moratori}/3 | Sopra soglia: ${risultato_moratori.supera_soglia_mora}`);
+        // Propaga in fattore F5 se anomalia significativa
+        if (risultato_moratori.applicabile && risultato_moratori.score_moratori >= 2 && score_result.fattori[4]) {
+          score_result.fattori[4].valore_label = `SÌ (mora ${risultato_moratori.mora_contrattuale_perc.toFixed(2)}% > soglia ${risultato_moratori.soglia_mora_perc.toFixed(2)}%)`;
+          score_result.fattori[4].impatto = 'Alto';
+        }
+      } catch (morErr) {
+        console.warn('⚠️ Moratori non calcolati:', morErr.message);
+      }
+    }
+
     // Step 8: Hash audit
     const hash_input  = JSON.stringify({ contratto_id, tipo_contratto, capitale, tan_dichiarato, voci, timestamp: Date.now() });
     const hash_catena = crypto.createHash('sha256').update(hash_input).digest('hex');
 
-    // Step 8: Salva audit con dati completi per archivio
+    // Step 9: Salva audit con migrazione non-destructive
     try {
-      // Migrazione non-destructive: aggiungi colonne archivio se mancanti
-      const colCheck = db.exec("PRAGMA table_info(audit_analisi)");
+      const colCheck = db.exec('PRAGMA table_info(audit_analisi)');
       const colNames = colCheck.length > 0 ? colCheck[0].values.map(r => r[1]) : [];
       const nuoveCols = [
-        ['tipo_contratto',  'TEXT'],  ['data_stipula',    'TEXT'],
-        ['capitale',        'REAL'],  ['tan_dichiarato',  'REAL'],
-        ['durata_mesi',     'INTEGER'],['teg_reale',       'REAL'],
-        ['soglia_usura',    'REAL'],  ['score_finale',    'INTEGER'],
-        ['usura_rilevata',  'INTEGER'],['fattori_json',    'TEXT'],
-        ['voci_json',       'TEXT'],  ['anatocismo_json', 'TEXT']
+        ['tipo_contratto',          'TEXT'],    ['data_stipula',          'TEXT'],
+        ['capitale',                'REAL'],    ['tan_dichiarato',        'REAL'],
+        ['durata_mesi',             'INTEGER'], ['teg_reale',             'REAL'],
+        ['soglia_usura',            'REAL'],    ['score_finale',          'INTEGER'],
+        ['usura_rilevata',          'INTEGER'], ['fattori_json',          'TEXT'],
+        ['voci_json',               'TEXT'],    ['anatocismo_json',       'TEXT'],
+        ['moratori_json',           'TEXT'],    ['mora_contrattuale_perc','REAL']
       ];
       for (const [col, tipo] of nuoveCols) {
         if (!colNames.includes(col)) {
-          try { db.run(`ALTER TABLE audit_analisi ADD COLUMN ${col} ${tipo}`); } catch(_) {}
+          try { db.run(`ALTER TABLE audit_analisi ADD COLUMN ${col} ${tipo}`); } catch (_) {}
         }
       }
 
       const fattori_json    = JSON.stringify(score_result.fattori || []);
       const voci_json       = JSON.stringify(voci || []);
       const anatocismo_json = risultato_anatocismo ? JSON.stringify(risultato_anatocismo) : null;
+      const moratori_json   = risultato_moratori   ? JSON.stringify(risultato_moratori)   : null;
       const usura_int       = (score_result.score >= 3) ? 1 : 0;
       const tan_dec         = typeof tan_dichiarato === 'number' ? tan_dichiarato : parseFloat(tan_dichiarato);
+      const mora_val        = payload.mora_contrattuale_perc != null ? parseFloat(payload.mora_contrattuale_perc) : null;
 
       db.run(
         `INSERT OR REPLACE INTO audit_analisi
          (analisi_id, contratto_id, hash_catena, versione_engine, dataset_soglie, timestamp_analisi,
           tipo_contratto, data_stipula, capitale, tan_dichiarato, durata_mesi,
           teg_reale, soglia_usura, score_finale, usura_rilevata,
-          fattori_json, voci_json, anatocismo_json)
-         VALUES (?,?,?,'1.2.0','seed_v2',datetime('now'),?,?,?,?,?,?,?,?,?,?,?,?)`,
+          fattori_json, voci_json, anatocismo_json, moratori_json, mora_contrattuale_perc)
+         VALUES (?,?,?,'1.3.0','seed_v2',datetime('now'),?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [contratto_id, contratto_id, hash_catena,
-         tipo_contratto, data_stipula || null, capitale, tan_dec, parseInt(durata_mesi)||84,
+         tipo_contratto, data_stipula || null, capitale, tan_dec, parseInt(durata_mesi) || 84,
          irr_result.irr_annuale, soglia_decimale, score_result.score, usura_int,
-         fattori_json, voci_json, anatocismo_json]
+         fattori_json, voci_json, anatocismo_json, moratori_json, mora_val]
       );
       console.log('  ✅ Audit salvato con dati archivio');
     } catch (dbErr) {
@@ -156,7 +175,8 @@ async function esegui_analisi(db, payload) {
       voci_analizzate,
       totale_costi_inclusi: totale_costi,
       ha_polizza_condizionante,
-      anatocismo:           risultato_anatocismo
+      anatocismo:           risultato_anatocismo,
+      moratori:             risultato_moratori
     };
 
   } catch (err) {

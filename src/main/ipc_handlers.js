@@ -168,6 +168,133 @@ function setupIpcHandlers() {
     }
   });
 
+  // ── EXPORT EXCEL MULTI-SHEET (Sessione G) ───────────────────────────────
+  // 4 sheet: Riepilogo | Voci Costo | Fattori Score | Moratori
+
+  ipcMain.handle('export-excel', async () => {
+    try {
+      const XLSX = require('xlsx');
+      const db   = getDb();
+
+      const res = db.exec('SELECT * FROM audit_analisi ORDER BY timestamp_analisi DESC');
+      if (res.length === 0 || res[0].values.length === 0) {
+        return { successo: false, errore: 'Nessuna pratica da esportare' };
+      }
+      const cols    = res[0].columns;
+      const pratiche = res[0].values.map(row => {
+        const obj = {};
+        cols.forEach((c, i) => obj[c] = row[i]);
+        return obj;
+      });
+
+      // ── Sheet 1: Riepilogo ───────────────────────────────────────────────
+      const sheet1 = pratiche.map(p => ({
+        'ID Pratica':       p.analisi_id || '',
+        'Data Analisi':     p.timestamp_analisi ? p.timestamp_analisi.substring(0,10) : '',
+        'Tipo Contratto':   (p.tipo_contratto||'').replace(/_/g,' ').toUpperCase(),
+        'Data Stipula':     p.data_stipula || '',
+        'Capitale (€)':     p.capitale != null ? parseFloat(p.capitale) : '',
+        'TAN %':            p.tan_dichiarato != null ? parseFloat((p.tan_dichiarato*100).toFixed(4)) : '',
+        'Durata (mesi)':    p.durata_mesi || '',
+        'TAEG Reale %':     p.teg_reale    != null ? parseFloat((p.teg_reale*100).toFixed(4))    : '',
+        'Soglia Usura %':   p.soglia_usura != null ? parseFloat((p.soglia_usura*100).toFixed(4)) : '',
+        'Delta (pp)':       (p.teg_reale && p.soglia_usura)
+                              ? parseFloat(((p.teg_reale - p.soglia_usura)*100).toFixed(4)) : '',
+        'Score (0-4)':      p.score_finale != null ? p.score_finale : '',
+        'Usura Rilevata':   p.usura_rilevata ? 'SÌ' : 'NO',
+        'Mora %':           p.mora_contrattuale_perc != null ? parseFloat(p.mora_contrattuale_perc) : '',
+        'Score Moratori':   (() => { try { const m = JSON.parse(p.moratori_json||'null'); return m && m.applicabile ? m.score_moratori : ''; } catch(_){ return ''; } })(),
+        'Score Anatocismo': (() => { try { const a = JSON.parse(p.anatocismo_json||'null'); return a && a.applicabile ? a.score_anatocismo : ''; } catch(_){ return ''; } })(),
+        'Versione Engine':  p.versione_engine || ''
+      }));
+
+      // ── Sheet 2: Voci Costo ──────────────────────────────────────────────
+      const sheet2 = [];
+      pratiche.forEach(p => {
+        try {
+          const voci = JSON.parse(p.voci_json || '[]');
+          voci.forEach(v => sheet2.push({
+            'ID Pratica':     p.analisi_id || '',
+            'Data Analisi':   p.timestamp_analisi ? p.timestamp_analisi.substring(0,10) : '',
+            'Tipo Contratto': (p.tipo_contratto||'').replace(/_/g,' ').toUpperCase(),
+            'Voce di Costo':  v.voce || '',
+            'Importo (€)':    v.importo != null ? parseFloat(v.importo) : '',
+            'Inclusa TEG':    !!v.inclusa_teg ? 'SÌ' : 'NO'
+          }));
+        } catch (_) {}
+      });
+      if (!sheet2.length) sheet2.push({ Info: 'Nessuna voce costo registrata' });
+
+      // ── Sheet 3: Fattori Score ───────────────────────────────────────────
+      const sheet3 = [];
+      pratiche.forEach(p => {
+        try {
+          const fattori = JSON.parse(p.fattori_json || '[]');
+          fattori.forEach(f => sheet3.push({
+            'ID Pratica':   p.analisi_id || '',
+            'Data Analisi': p.timestamp_analisi ? p.timestamp_analisi.substring(0,10) : '',
+            'ID Fattore':   f.id || '',
+            'Nome Fattore': f.nome || '',
+            'Valore':       f.valore_label || '',
+            'Impatto':      f.impatto || ''
+          }));
+        } catch (_) {}
+      });
+      if (!sheet3.length) sheet3.push({ Info: 'Nessun fattore registrato' });
+
+      // ── Sheet 4: Moratori ────────────────────────────────────────────────
+      const sheet4 = [];
+      pratiche.forEach(p => {
+        try {
+          const m = p.moratori_json ? JSON.parse(p.moratori_json) : null;
+          if (!m || !m.applicabile) return;
+          sheet4.push({
+            'ID Pratica':           p.analisi_id || '',
+            'Data Analisi':         p.timestamp_analisi ? p.timestamp_analisi.substring(0,10) : '',
+            'Mora Contrattuale %':  parseFloat(m.mora_contrattuale_perc),
+            'Soglia Mora %':        parseFloat(m.soglia_mora_perc.toFixed(4)),
+            'Delta Mora (pp)':      parseFloat(m.delta_mora_pp.toFixed(4)),
+            'Sopra Soglia':         m.supera_soglia_mora ? 'SÌ' : 'NO',
+            'Score Moratori (0-3)': m.score_moratori,
+            'Label':                m.label_moratori || '',
+            'TEG Complessivo %':    parseFloat(m.teg_complessivo_perc.toFixed(4))
+          });
+        } catch (_) {}
+      });
+      if (!sheet4.length) sheet4.push({ Info: 'Nessuna analisi moratori' });
+
+      // ── Build workbook ───────────────────────────────────────────────────
+      const wb  = XLSX.utils.book_new();
+      const aw  = (data) => !data.length ? [] : Object.keys(data[0]).map(k => ({
+        wch: Math.max(k.length, ...data.map(r => String(r[k]||'').length)) + 2
+      }));
+
+      const ws1 = XLSX.utils.json_to_sheet(sheet1); ws1['!cols'] = aw(sheet1);
+      const ws2 = XLSX.utils.json_to_sheet(sheet2); ws2['!cols'] = aw(sheet2);
+      const ws3 = XLSX.utils.json_to_sheet(sheet3); ws3['!cols'] = aw(sheet3);
+      const ws4 = XLSX.utils.json_to_sheet(sheet4); ws4['!cols'] = aw(sheet4);
+
+      XLSX.utils.book_append_sheet(wb, ws1, 'Riepilogo Pratiche');
+      XLSX.utils.book_append_sheet(wb, ws2, 'Voci Costo');
+      XLSX.utils.book_append_sheet(wb, ws3, 'Fattori Score');
+      XLSX.utils.book_append_sheet(wb, ws4, 'Moratori');
+
+      const { filePath } = await dialog.showSaveDialog({
+        defaultPath: path.join(app.getPath('documents'), `BBRE_Export_${Date.now()}.xlsx`),
+        filters: [{ name: 'Excel', extensions: ['xlsx'] }]
+      });
+      if (!filePath) return { successo: false, errore: 'Esportazione annullata' };
+
+      XLSX.writeFile(wb, filePath);
+      console.log('✅ Excel esportato:', filePath);
+      return { successo: true, path_file: filePath, num_pratiche: pratiche.length };
+
+    } catch (err) {
+      console.error('❌ Errore export-excel:', err.message);
+      return { successo: false, errore: err.message };
+    }
+  });
+
   // ── BACKUP DB ────────────────────────────────────────────────────────────
 
   ipcMain.handle('backup-db', async () => {
@@ -343,7 +470,7 @@ function setupIpcHandlers() {
     }
   });
 
-  console.log('✅ IPC Handlers registrati (15 canali)');
+  console.log('✅ IPC Handlers registrati (16 canali — v1.3.0)');
 }
 
 module.exports = { setupIpcHandlers };
